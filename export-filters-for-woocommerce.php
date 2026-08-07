@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name:       Export Filters for WooCommerce
- * Plugin URI:        https://github.com/joseconti/product-export-filters-for-woocommerce
+ * Plugin URI:        https://plugins.joseconti.com/export-filters-for-woocommerce/
  * Description:       Adds filtering options to WooCommerce's native product exporter, starting with a date filter (created / last modified, with a from/to range).
  * Version:           1.0.0
  * Requires at least: 6.4
@@ -9,7 +9,7 @@
  * WC requires at least: 8.0
  * WC tested up to:   11.0
  * Author:            José Conti
- * Author URI:        https://joseconti.com
+ * Author URI:        https://plugins.joseconti.com
  * License:           GPL-3.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-3.0.html
  * Text Domain:       export-filters-for-woocommerce

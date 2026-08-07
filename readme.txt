@@ -1,5 +1,5 @@
 === Export Filters for WooCommerce ===
-Contributors: joseconti
+Contributors: j.conti
 Tags: woocommerce, export, products, csv, date filter
 Requires at least: 6.4
 Tested up to: 6.7

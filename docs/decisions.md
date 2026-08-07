@@ -100,7 +100,26 @@
 - Supersedes: D-008's placement reasoning (the artifact's identity, content,
   and role as a code-to-port reference are unchanged — only its path).
 
-## D-008 — Reference artifact: port the drafted date-filter class
+## D-020 — wordpress.org identity: Contributors, Plugin URI, Author URI
+- Date / phase: 2026-08-07 / post-release-prep, at the user's explicit request
+- Decision: the user's wordpress.org (WPORG) username is `j.conti`, email
+  `j.conti@joseconti.com`, and every plugin-metadata pointer should go to
+  `plugins.joseconti.com`. Applied: `readme.txt` `Contributors:` changed from
+  `joseconti` to `j.conti`; the plugin header's `Author URI` changed from
+  `https://joseconti.com` to `https://plugins.joseconti.com`; `Plugin URI`
+  changed from the GitHub repo URL to
+  `https://plugins.joseconti.com/export-filters-for-woocommerce/` (a guessed
+  path matching the plugin slug — **flagged for the user to confirm or
+  correct**, since the exact page doesn't exist yet). `.pot` regenerated live
+  (`wp i18n make-pot`, verified) and the `es_ES` `.po` updated to match the
+  new URLs, `.mo` recompile-verified with `msgfmt`.
+- Why: explicit instruction — the previous values were placeholders from
+  project setup (the personal site and the GitHub account), not the actual
+  WPORG identity.
+- Alternatives rejected: none — direct instruction.
+- Supersedes: none. **Open question for the user:** confirm the exact
+  `Plugin URI` path once the page exists on plugins.joseconti.com, or say
+  what it should be instead. — Reference artifact: port the drafted date-filter class
 - Date / phase: 2026-08-07 / Phase 2, step 1
 - Decision: `docs/spec-references/filtros-exportador-woocommerce.md` §6 (the `JC_Product_Export_Date_Filter`
   class) is used as a code-to-port reference artifact for Sprint 1, renamed to
