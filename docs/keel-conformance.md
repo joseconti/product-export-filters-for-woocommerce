@@ -26,7 +26,6 @@
 | `docs/spec-references/` | n/a | the Phase 2 reference artifact (D-008) is `docs/filtros-exportador-woocommerce.md`, already committed at its own path; the spec cites it directly rather than duplicating it under `docs/spec-references/` |
 | `docs/rubrics/` | present | `docs/rubrics/hooks-and-extensibility.md` (D-011) |
 | `docs/design/references/` | n/a | no UI design needed (D-006) |
-| Assistant rules / subagents containers | missing | Phase 2 close, if accepted — not yet asked |
 | `docs/design/DESIGN-BRIEF.md` | n/a | no UI design needed (D-006) |
 | `docs/design/design-handoff/` | n/a | no UI design needed (D-006) |
 | `docs/BUILD-SPEC.md` | n/a | no UI design needed (D-006) |
