@@ -79,3 +79,62 @@
 - Alternatives rejected: `prefill` (the otherwise-recommended default absent an
   explicit `start` request).
 - Supersedes: none
+
+## D-008 — Reference artifact: port the drafted date-filter class
+- Date / phase: 2026-08-07 / Phase 2, step 1
+- Decision: `docs/filtros-exportador-woocommerce.md` §6 (the `JC_Product_Export_Date_Filter`
+  class) is used as a code-to-port reference artifact for Sprint 1, renamed to
+  this project's `EFWC_` convention. Registered in `docs/02-functional-spec.md`
+  under "Reference artifacts."
+- Why: it is a working, WC-11.0.0-source-verified implementation the user
+  already wrote and tested against the real traps (meta_query clobbering,
+  variations bypass, date regex limits) — re-specifying it from scratch in
+  prose would throw away that verification work for no benefit.
+- Alternatives rejected: writing the class fresh from the functional spec alone
+  (slower, and would re-introduce risk of missing a trap already solved).
+- Supersedes: none
+
+## D-009 — Test-first policy: pure-logic (default accepted)
+- Date / phase: 2026-08-07 / Phase 2, step 4e
+- Decision: `Test-first policy: pure-logic`. `clean_date()` and the date-range
+  args-building logic (pure functions of their inputs) get their unit test
+  written and seen failing before the implementation; the Playwright e2e suite
+  is written alongside the implementation as usual. Applied as Keel's default
+  since the project proceeded autonomously per the user's standing autonomy
+  setting — recorded as "default accepted," not a re-litigated choice.
+- Why: this is the value with net-negative cost per Keel's own guidance, and
+  fits a project whose only real "pure logic" is exactly the date-validation
+  and range-building code — the highest-value place to write the test first.
+- Alternatives rejected: `pure-logic + acceptance` (more upfront cost, not
+  clearly warranted for a single-filter v1); `none` (would leave the one piece
+  of real logic in this project untested-first, exactly where it matters most).
+- Supersedes: none
+
+## D-010 — No front-end build/minify pipeline for v1
+- Date / phase: 2026-08-07 / Phase 2, step 4
+- Decision: the plugin ships no standalone `.js`/`.css` file for v1 — its only
+  client-side code is a short string passed to `wp_add_inline_script()`. Keel's
+  source-first/minified-pair contract is therefore not triggered; it applies
+  automatically the moment a Later-roadmap filter needs real client-side logic
+  large enough to warrant its own file.
+- Why: matches the actual shape of the code (mirrors
+  `docs/filtros-exportador-woocommerce.md` §6's `enqueue()` method).
+- Alternatives rejected: none — this is a factual statement about the code's
+  shape, not a discretionary choice.
+- Supersedes: none
+
+## D-011 — Rubric accepted: hooks & extensibility shape
+- Date / phase: 2026-08-07 / Phase 2, step 6a
+- Decision: accepted Keel's recommended rubric pass for a plugin. Rubric
+  written to `docs/rubrics/hooks-and-extensibility.md` (5 criteria on
+  additive/non-destructive filter behavior, prefix discipline, hook
+  documentation timing, closed value sets, and not boxing in the Later
+  roadmap) and scored against the Phase 2 spec — all criteria passed, no spec
+  changes required.
+- Why: applied the recommended default ("recommended: yes for a plugin ... the
+  way other people hook into it can't be changed without breaking their sites")
+  since the session is proceeding autonomously per the user's standing
+  autonomy setting.
+- Alternatives rejected: declining the rubric pass (would have skipped a cheap,
+  relevant check for a hook-based plugin explicitly designed to grow).
+- Supersedes: none

@@ -18,13 +18,13 @@
 | `docs/01-discovery.md` | present | |
 | `docs/estimate.md` | present | Estimate v1 (preliminary) |
 | `docs/token-ledger.md` | present | |
-| `docs/02-functional-spec.md` | missing | Phase 2 |
-| `docs/03-technical-plan.md` | missing | Phase 2 |
-| `docs/threat-model.md` | missing | Phase 2 |
-| `docs/flows/` | missing | Phase 2 (likely a single short flow given the tiny v1 scope) |
+| `docs/02-functional-spec.md` | present | |
+| `docs/03-technical-plan.md` | present | |
+| `docs/threat-model.md` | present | |
+| `docs/flows/` | present | `docs/flows/date-filter-export.md` |
 | `docs/budget.md` | n/a | `Client budget: no` |
-| `docs/spec-references/` | n/a until Phase 2 decides | condition: only if the spec records reference artifacts |
-| `docs/rubrics/` | n/a until Phase 2 decides | condition: only if a rubric domain is accepted at §6a |
+| `docs/spec-references/` | n/a | the Phase 2 reference artifact (D-008) is `docs/filtros-exportador-woocommerce.md`, already committed at its own path; the spec cites it directly rather than duplicating it under `docs/spec-references/` |
+| `docs/rubrics/` | present | `docs/rubrics/hooks-and-extensibility.md` (D-011) |
 | `docs/design/references/` | n/a | no UI design needed (D-006) |
 | Assistant rules / subagents containers | missing | Phase 2 close, if accepted — not yet asked |
 | `docs/design/DESIGN-BRIEF.md` | n/a | no UI design needed (D-006) |

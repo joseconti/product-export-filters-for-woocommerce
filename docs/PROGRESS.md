@@ -21,7 +21,7 @@
 - Client budget: no
 - User guide: TBD (Phase 6)
 - Docs theme: n/a until Phase 6
-- Test-first policy: TBD (Phase 2 step 4e, default pure-logic)
+- Test-first policy: pure-logic (D-009, default accepted)
 - Durability: git remote origin https://github.com/joseconti/product-export-filters-for-woocommerce.git (verified present)
 - Autonomy: automatic / issues: after-sprint / Issue sweep interval: 24h / Issue capture: off
 - Branches: develop (active, created from unborn main this session) — nothing yet awaiting merge to main
@@ -32,7 +32,7 @@
 | Phase | Status | Key artifacts |
 |-------|--------|---------------|
 | 1 Discovery | done | docs/00-competitive-landscape.md, docs/01-discovery.md, docs/estimate.md (v1 preliminary), docs/token-ledger.md, docs/keel-conformance.md |
-| 2 Functional spec | pending | — |
+| 2 Functional spec | done | docs/02-functional-spec.md, docs/03-technical-plan.md, docs/threat-model.md, docs/flows/date-filter-export.md, docs/rubrics/hooks-and-extensibility.md, docs/estimate.md (v2 firm) |
 | 3 Design handoff | n/a — no UI design needed (D-006) | — |
 | 4 Faithful build | n/a — no UI design needed (D-006) | — |
 | 5 Development | pending | — |
@@ -41,8 +41,8 @@
 | 8 Website | n/a — no website intent (D-006) | — |
 
 ## Current position
-- Phase: 2 — Functional spec. Not yet started.
-- Next action: Open Phase 2 (`references/phase-2-functional-spec.md`): write the single short flow for the date-filter export, the functional spec with `AC-nn` acceptance criteria, the technical plan (code map, conventions, testing plan, environment requirements — including the wp-env playground recipe), the threat model, and the firm estimate.
+- Phase: 5 — Development. Not yet started (Phases 3–4 skipped per D-006).
+- Next action: Open Phase 5 (`references/phase-5-development.md`): scaffold the plugin (bootstrap file, `.wp-env.json`, Playwright config, `scripts/keel-verify` / `scripts/keel-doctor` / `scripts/keel-handoff-verify` / `scripts/keel-continue`, single-lane lock — required before `Chaining: start` can actually fire), then Sprint 1: implement `EFWC_Date_Filter` (test-first for the pure-logic pieces per D-009), unit tests, the Playwright e2e spec, and run the real playground test point.
 
 ## Open items
 - Unresolved user questions: none outstanding.
@@ -54,4 +54,4 @@
 - Tag filter, stock-status filter, delimiter choice, never-sold filter, no-SKU filter, price-range filter, product-status filter, featured filter, batch-size control, brand/attribute filters, saved filter profiles — all recorded as the "Later" (v1.1+) roadmap in `docs/01-discovery.md`; review trigger: "revisit when scoping v1.1, after v1 ships"
 - Scheduled/remote delivery — deferred as a future premium-tier candidate, not part of the free-tier roadmap; review trigger: "revisit if a premium tier is ever pursued"
 
-Last updated: 2026-08-07 — Phase 1 closed, entering Phase 2
+Last updated: 2026-08-07 — Phase 2 closed, entering Phase 5 (Phases 3–4 skipped, D-006)
