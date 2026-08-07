@@ -165,9 +165,10 @@ correctly drawn — there is no matching CLI gap to also close.
 - Installed base / upgrade reality: fresh v1, no existing installed base.
 - External dependencies with fixed versions: WooCommerce (the native product
   exporter's hooks used here have existed since WC 3.5.0; developed and
-  verified against WC 11.0.0). WordPress minimum TBD in Phase 2 technical plan
-  (a standard modern floor, e.g. WP 6.x). If WooCommerce is inactive, the
-  plugin must fail safe — do nothing beyond an admin notice, never fatal.
+  verified against WC 11.0.0). WordPress minimum fixed at 6.4 and WooCommerce
+  minimum at 8.0 in `docs/03-technical-plan.md` §Support matrix. If
+  WooCommerce is inactive, the plugin fails safe — verified live (AC-13):
+  an admin notice, never fatal.
 - License: **GPL-3.0-or-later** (required for wordpress.org distribution).
 
 ## Installed base / upgrade

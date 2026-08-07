@@ -27,7 +27,7 @@
 - Autonomy: automatic / issues: after-sprint / Issue sweep interval: 24h / Issue capture: off
 - Branches: develop (active, created from unborn main this session) — nothing yet awaiting merge to main
 - Notify: Claude app push notification (PushNotification tool) — re-probed every session
-- Chaining: start (requested by user, D-007) — resolves to its full behavior once the Phase 5 scaffold creates the single-lane lock + scripts/keel-continue + scripts/keel-handoff-verify; until then every session-end still writes and shows the continuation prompt as usual
+- Chaining: start (requested by user, D-007) — the single-lane lock, scripts/keel-continue and scripts/keel-handoff-verify are all built and verified (Phase 5 scaffold complete); the refuse-to-fire path is verified live, the real macOS Terminal-launch has not fired yet (D-014, not a gap — an unexercised mechanism, not a blocked one)
 
 ## Phase status
 | Phase | Status | Key artifacts |
