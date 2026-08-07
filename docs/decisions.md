@@ -108,18 +108,24 @@
   `joseconti` to `j.conti`; the plugin header's `Author URI` changed from
   `https://joseconti.com` to `https://plugins.joseconti.com`; `Plugin URI`
   changed from the GitHub repo URL to
-  `https://plugins.joseconti.com/export-filters-for-woocommerce/` (a guessed
-  path matching the plugin slug — **flagged for the user to confirm or
-  correct**, since the exact page doesn't exist yet). `.pot` regenerated live
-  (`wp i18n make-pot`, verified) and the `es_ES` `.po` updated to match the
-  new URLs, `.mo` recompile-verified with `msgfmt`.
+  `https://plugins.joseconti.com` — the site home, with no slug: the user
+  confirmed no per-plugin page exists there yet. Both `Plugin URI` and
+  `Author URI` therefore carry the same value, which makes `wp i18n make-pot`
+  merge them into ONE `msgid` with two source comments — expected behavior,
+  and the `es_ES` `.po` mirrors that structure. `.pot` regenerated live
+  (`wp i18n make-pot`, verified) and the `.po` updated to match, `.mo`
+  recompile-verified with `msgfmt` (11 messages, all translated).
 - Why: explicit instruction — the previous values were placeholders from
   project setup (the personal site and the GitHub account), not the actual
   WPORG identity.
-- Alternatives rejected: none — direct instruction.
-- Supersedes: none. **Open question for the user:** confirm the exact
-  `Plugin URI` path once the page exists on plugins.joseconti.com, or say
-  what it should be instead. — Reference artifact: port the drafted date-filter class
+- Alternatives rejected: a per-plugin slug path
+  (`/export-filters-for-woocommerce/`) — proposed first, rejected by the user
+  because that page does not exist; pointing at a 404 from the plugin header
+  would be worse than pointing at the home.
+- Supersedes: none. If a dedicated plugin page is later published on
+  plugins.joseconti.com, `Plugin URI` can be pointed at it — a one-line
+  change plus a `.pot`/`.po` regeneration (which will split the merged msgid
+  back into two). — Reference artifact: port the drafted date-filter class
 - Date / phase: 2026-08-07 / Phase 2, step 1
 - Decision: `docs/spec-references/filtros-exportador-woocommerce.md` §6 (the `JC_Product_Export_Date_Filter`
   class) is used as a code-to-port reference artifact for Sprint 1, renamed to
