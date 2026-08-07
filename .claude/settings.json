@@ -1,0 +1,31 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install:*)",
+      "Bash(npx wp-env start:*)",
+      "Bash(npx wp-env stop:*)",
+      "Bash(npx wp-env clean:*)",
+      "Bash(npx wp-env run cli wp plugin list:*)",
+      "Bash(npx wp-env run cli wp plugin activate:*)",
+      "Bash(npx wp-env run cli wp plugin deactivate:*)",
+      "Bash(npx wp-env run cli wp eval-file wp-content/plugins/product-export-filters-for-woocommerce/tests/seed/seed-products.php:*)",
+      "Bash(npx wp-env run cli wp option list:*)",
+      "Bash(npx wp-env run cli wp transient list:*)",
+      "Bash(npx wp-env run cli wp cron event list:*)",
+      "Bash(npx wp-env run cli wp db query:*)",
+      "Bash(npx wp-env run cli wp i18n make-pot:*)",
+      "Bash(npx wp-env run tests-cli --env-cwd=wp-content/plugins/product-export-filters-for-woocommerce phpunit:*)",
+      "Bash(npx playwright test:*)",
+      "Bash(npx playwright install:*)",
+      "Bash(composer install:*)",
+      "Bash(vendor/bin/phpcs:*)",
+      "Bash(php -l:*)",
+      "Bash(msgfmt:*)",
+      "Bash(./scripts/keel-verify:*)",
+      "Bash(./scripts/keel-doctor --check:*)",
+      "Bash(./scripts/keel-doctor --plan:*)",
+      "Bash(./scripts/keel-handoff-verify:*)",
+      "Bash(./scripts/keel-continue:*)"
+    ]
+  }
+}

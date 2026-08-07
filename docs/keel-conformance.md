@@ -43,10 +43,13 @@
 | `scripts/keel-handoff-verify` | present | the 6 courier checks + single-lane lock take/release; verified live — correctly refused a stale/dirty hand-off |
 | Single-lane lock | present | implemented inside `scripts/keel-handoff-verify` (lock file under `~/.keel/state/`, keyed by the real working-tree path) |
 | `scripts/keel-continue` | present | tool detection, launch receipt, circuit breaker, script-file launch (never an interpolated string) all implemented; verified the refuse-to-fire path live (stale hand-off → printed prompt, no window opened); the actual macOS Terminal-launch path is implemented per spec but not fired in this session (firing it would open a real unsupervised chat window without the user watching it happen) |
-| `.githooks/pre-commit` | missing | Phase 5 scaffold, if assistant-config accepted — not yet asked |
-| Permission allow-lists (committed) | missing | Phase 5 scaffold, if assistant-config accepted — not yet asked |
-| CI workflow | missing | Phase 5 scaffold, if assistant-config accepted and forge has CI — not yet asked |
-| MCP registration | n/a | technical plan does not define dev MCP servers (Phase 2 will confirm) |
+| `.githooks/pre-commit` | present | installed, `core.hooksPath` set, VERIFIED live by staging a synthetic secret and confirming the commit was blocked (D-018) |
+| Permission allow-lists (committed) | present | `.claude/settings.json`, built only from this project's verified commands (D-018) |
+| CI workflow | present | `.github/workflows/ci.yml` — lint, phpcs, unit, e2e, gitleaks, keel-verify, the plan's exact commands (D-018) |
+| Assistant rules (path-scoped) | present | `.claude/rules/` — code-style, security, docs-discipline (D-018) |
+| Assistant subagents | present | `.claude/agents/` — code-reviewer, security-auditor, docs-verifier, playground-qa, a11y-auditor, test-driver (D-018); design-fidelity-auditor/launch-verifier/guide-qa not generated — n/a per D-006/D-015 |
+| Model binding | present | reviewer=claude-sonnet-5, mechanical=claude-haiku-4-5-20251001, recorded in D-018 and the project card |
+| MCP registration | n/a | technical plan does not define dev MCP servers |
 | `docs/architecture.md` | present | as-built, Mermaid data flow, decisions consolidated |
 | `docs/api/`, `docs/usage/`, `docs/reference/` | present | api/README.md + INDEX.md (empty by design); usage/ (4 files); reference/ (3 files) |
 | `docs/security.md` | present | applied result, consolidated from the threat model |

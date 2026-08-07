@@ -14,8 +14,8 @@
 - Installed base: fresh v1
 - Design system: n/a — native WP/WC admin styling only, no custom design (D-006)
 - Keel portability: lock + embedded v5.12.0 (.claude/skills/keel/, .agents/skills/keel/)
-- Assistant config: none yet — not asked (revisit at Phase 2 close)
-- Models: n/a — no per-role model map set up yet
+- Assistant config: full (tools: claude) — rules + agents + permissions + pre-commit gate + CI (D-018)
+- Models: orchestrator=session model (claude-sonnet-5, not set by Keel) / reviewer=claude-sonnet-5 / mechanical=claude-haiku-4-5-20251001 (D-018)
 - Keel baseline: v5.12.0
 - Website intent: no (D-006)
 - Client budget: no

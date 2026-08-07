@@ -240,3 +240,35 @@
   `main`; a release is what real users receive.
 - Alternatives rejected: none — this is not a discretionary choice.
 - Supersedes: none
+
+## D-018 — Native assistant config package: full, Claude Code only
+- Date / phase: 2026-08-07 / post-release-prep, at the user's explicit request
+- Decision: accepted the "full" native assistant config package (rules +
+  agents + permissions + pre-commit gate + CI), Claude Code only (the only
+  tool in use on this project). Generated: three path-scoped rules
+  (`code-style`, `security`, `docs-discipline`) in `.claude/rules/`; six
+  subagents in `.claude/agents/` — `code-reviewer`, `security-auditor`,
+  `docs-verifier`, `playground-qa`, `a11y-auditor`, `test-driver` (the
+  conditional ones that don't apply — `design-fidelity-auditor`,
+  `launch-verifier`, `guide-qa` — were NOT generated: no design phase
+  (D-006), no website intent (D-006), guide declined (D-015)); a committed
+  permission allow-list (`.claude/settings.json`) built only from this
+  project's own verified tooling commands; `.githooks/pre-commit` (the
+  confidential-data gate), installed and VERIFIED live by staging a
+  synthetic secret and confirming the commit was blocked; and
+  `.github/workflows/ci.yml` running the plan's exact verified commands
+  (lint → phpcs → unit → e2e) plus a gitleaks secret scan and
+  `scripts/keel-verify`.
+- Model map: **orchestrator** = the session model (Keel does not set this —
+  currently claude-sonnet-5); **reviewer** (`code-reviewer`,
+  `security-auditor`) = claude-sonnet-5, real judgment needed; **mechanical**
+  (`docs-verifier`, `playground-qa`, `a11y-auditor`, `test-driver`) =
+  claude-haiku-4-5-20251001, the cheapest capable tier — these agents
+  execute/compare, they don't need to reason hard. On this subscription the
+  benefit is speed/rate-limit headroom, not direct cost savings.
+- Why: the user explicitly asked to continue applying the full Keel
+  protocol, naming the security-reviewing agents specifically as something
+  still missing.
+- Alternatives rejected: `rules+agents` without permissions/CI (the user
+  chose the full package when offered the choice).
+- Supersedes: none

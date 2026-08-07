@@ -1,0 +1,72 @@
+name: CI
+
+on:
+  push:
+    branches: [develop, main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Secret scan
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.4'
+          tools: composer
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install PHP dev dependencies
+        run: composer install --no-interaction
+
+      - name: Lint PHP
+        run: |
+          php -l export-filters-for-woocommerce.php
+          for f in includes/*.php uninstall.php; do php -l "$f"; done
+
+      - name: Coding standard
+        run: vendor/bin/phpcs --standard=phpcs.xml.dist
+
+      - name: Install Node dependencies
+        run: npm install
+
+      - name: Start the wp-env playground
+        run: npx wp-env start
+
+      - name: Unit tests (real WP core test suite)
+        run: npx wp-env run tests-cli --env-cwd=wp-content/plugins/product-export-filters-for-woocommerce phpunit
+
+      - name: Seed the e2e catalog
+        run: npx wp-env run cli wp eval-file wp-content/plugins/product-export-filters-for-woocommerce/tests/seed/seed-products.php
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: e2e tests
+        run: npx playwright test
+
+      - name: Upload Playwright artifacts on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: test-results/
+          retention-days: 7
+
+      - name: keel-verify
+        run: ./scripts/keel-verify
+
+      - name: Stop the wp-env playground
+        if: always()
+        run: npx wp-env stop
