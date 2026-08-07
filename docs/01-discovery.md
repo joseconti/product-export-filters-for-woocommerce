@@ -117,6 +117,32 @@ quickly without architectural rework, as long as the `date_created`/
 - Verdict: **proceed**.
 - User decision: proceed (verdict was not negative, no override needed).
 
+## WP-CLI export path — checked, confirmed out of scope
+WooCommerce also exposes product data through WP-CLI (`wp wc product list
+--format=csv`, etc.) — auto-generated from the REST API by
+`WC_CLI_REST_Command`/`WC_CLI_Runner`, verified in the WC 11.0.0 source
+(`includes/cli/class-wc-cli-runner.php`). Two things confirmed, one by
+reading the source and one live in the wp-env playground:
+
+- **It never goes through this plugin's hook.** The CLI path queries via the
+  REST API's `WC_REST_Products_Controller` → `WC_REST_CRUD_Controller::prepare_objects_query()`,
+  a completely separate code path from `WC_Product_CSV_Exporter` /
+  `woocommerce_product_export_product_query_args`. This plugin has zero
+  effect there, in either direction.
+- **It doesn't need to.** The REST/CLI path already has its own native date
+  filtering — `--after`/`--before` (maps to `date_query` on `post_date`) and
+  `--modified_after`/`--modified_before` (maps to `post_modified`), built the
+  *safe* way (a manually-constructed `date_query` array, never the
+  `date_created`/`date_modified` args that clobber `meta_query` — see §4.1).
+  Verified live: `wp wc product list --format=count` → 240 products;
+  `wp wc product list --after=2026-03-01T00:00:00 --before=2026-03-27T23:59:59 --format=count`
+  → 40, correctly narrowed.
+
+**Conclusion:** the date-filtering gap this plugin fixes is specific to the
+admin **`Products > Export` screen**. The CLI/REST path never had it. This
+confirms D-001's scope boundary (extend the native admin exporter only) was
+correctly drawn — there is no matching CLI gap to also close.
+
 ## Constraints & non-negotiables
 - Extends WooCommerce's native product exporter via hooks (`woocommerce_product_export_row`,
   `woocommerce_product_export_product_query_args`, and related filters listed in
