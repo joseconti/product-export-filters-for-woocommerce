@@ -187,3 +187,23 @@
 - Supersedes: none. Per SKILL.md "An unexercised mechanism is not a blocked
   one" — this is a fact about the mechanism's history, not a veto; the first
   real sprint close that actually chains is its own evidence.
+
+## D-015 — End-user `guide/` declined for v1
+- Date / phase: 2026-08-07 / Phase 6, Documentation
+- Decision: the full HTML `guide/` artifact (`references/guide-theme.md`'s
+  canonical documentation theme, vendored + brand layer + dev portal) is
+  **declined for v1**. `readme.txt` (wordpress.org's own user-facing surface)
+  plus `docs/usage/` (installation, configuration, getting-started, examples
+  — all task-first, plain-language) already give complete coverage for a
+  single-feature plugin, and this session has no way to authentically vendor
+  the canonical theme's external release assets without fabricating them.
+- Why: `docs/usage/` and `readme.txt` already satisfy the guide's own
+  coverage bar (every v1 feature and every setting has its section) for a
+  product this size; building a parallel HTML guide on an unvendored/
+  improvised theme would violate "never invent" worse than declining. The
+  decision is explicitly reversible — a future session can vendor the real
+  theme and build `guide/` properly the moment its source is available.
+- Alternatives rejected: building `guide/` on improvised, non-canonical
+  HTML/CSS (the one path the reference explicitly forbids: "never on
+  improvised per-project HTML/CSS").
+- Supersedes: none

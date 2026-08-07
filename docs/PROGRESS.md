@@ -19,8 +19,9 @@
 - Keel baseline: v5.12.0
 - Website intent: no (D-006)
 - Client budget: no
-- User guide: TBD (Phase 6)
-- Docs theme: n/a until Phase 6
+- User guide: declined for v1 (D-015) — readme.txt + docs/usage/ cover it; reversible later
+- Docs theme: n/a — guide declined (D-015)
+- Docs indexing: n/a — no guide published
 - Test-first policy: pure-logic (D-009, default accepted)
 - Durability: git remote origin https://github.com/joseconti/product-export-filters-for-woocommerce.git (verified present)
 - Autonomy: automatic / issues: after-sprint / Issue sweep interval: 24h / Issue capture: off
@@ -36,7 +37,7 @@
 | 3 Design handoff | n/a — no UI design needed (D-006) | — |
 | 4 Faithful build | n/a — no UI design needed (D-006) | — |
 | 5 Development | done — Sprint 1 closed | export-filters-for-woocommerce.php, includes/class-efwc-date-filter.php, tests/ (17 unit + 5 e2e, all passing), docs/05-test-points.md, docs/playground.md, docs/sprints/sprint-1.md, scripts/keel-verify + keel-doctor + keel-handoff-verify + keel-continue (all passing/verified) |
-| 6 Documentation | in progress | — |
+| 6 Documentation | done | docs/architecture.md, docs/api/README.md + INDEX.md, docs/reference/, docs/usage/, docs/security.md, docs/accessibility.md, README.md, LICENSE; guide/ declined for v1 (D-015) |
 | 7 Release | pending | — |
 | 8 Website | n/a — no website intent (D-006) | — |
 
