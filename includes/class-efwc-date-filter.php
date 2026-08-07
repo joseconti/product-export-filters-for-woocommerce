@@ -3,7 +3,7 @@
  * Date filter for WooCommerce's native product exporter.
  *
  * Ported and renamed from the verified reference implementation in
- * docs/filtros-exportador-woocommerce.md §6 (D-008). Extends the exporter via
+ * docs/spec-references/filtros-exportador-woocommerce.md §6 (D-008). Extends the exporter via
  * its own hooks — never replaces it, never duplicates its batching, column,
  * or download logic.
  *

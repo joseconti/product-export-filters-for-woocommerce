@@ -111,7 +111,7 @@ The v1 scope itself is appropriately tight: it ships exactly the cited gap,
 nothing more, and the roadmap (tags, stock status, delimiter, never-sold) is
 cheap enough — all native `wc_get_products()` query vars — that v1.1 can follow
 quickly without architectural rework, as long as the `date_created`/
-`date_modified` → manual `date_query` migration (docs/filtros-exportador-woocommerce.md
+`date_modified` → manual `date_query` migration (docs/spec-references/filtros-exportador-woocommerce.md
 §4.1, §8.4) happens at the second filter as the user's own notes already flag.
 
 - Verdict: **proceed**.
@@ -146,12 +146,12 @@ correctly drawn — there is no matching CLI gap to also close.
 ## Constraints & non-negotiables
 - Extends WooCommerce's native product exporter via hooks (`woocommerce_product_export_row`,
   `woocommerce_product_export_product_query_args`, and related filters listed in
-  `docs/filtros-exportador-woocommerce.md` §3). Never replaces it, never
+  `docs/spec-references/filtros-exportador-woocommerce.md` §3). Never replaces it, never
   duplicates its batching, column, or download logic.
 - Must not break the existing behavior of `Products > Export` for users who
   don't touch the new filter (all-dates default, zero-impact when unused).
 - Known WooCommerce-core traps to respect (verified against WC 11.0.0 source,
-  `docs/filtros-exportador-woocommerce.md` §4): setting `date_created`/
+  `docs/spec-references/filtros-exportador-woocommerce.md` §4): setting `date_created`/
   `date_modified` directly wipes the auto-generated `meta_query` (§4.1) —
   single-filter v1 can use it directly, but the architecture decision to
   migrate to manual `date_query` is due the moment a second filter (e.g. tag,

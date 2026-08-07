@@ -13,7 +13,7 @@
 - Slices:
   | Slice | Status | Test point result | Notes |
   |---|---|---|---|
-  | Plugin bootstrap + `EFWC_Date_Filter` class | done | php -l clean; phpcs clean (1 documented ignore) | Ported from `docs/filtros-exportador-woocommerce.md` §6 (D-008), renamed to `EFWC_` |
+  | Plugin bootstrap + `EFWC_Date_Filter` class | done | php -l clean; phpcs clean (1 documented ignore) | Ported from `docs/spec-references/filtros-exportador-woocommerce.md` §6 (D-008), renamed to `EFWC_` |
   | Unit tests (`clean_date`, `query_args`) | done | 17/17 pass, real WP core test suite | Test-first gap acknowledged (D-013) — ported code, not new logic |
   | wp-env playground + seed script | done | Boots; both plugins report `active`; 60 products seeded | L-001, L-002 fixed during verification |
   | Playwright e2e suite + axe accessibility | done | 5/5 pass headless, trace+video recorded | L-003 fixed during verification (axe scoping) |

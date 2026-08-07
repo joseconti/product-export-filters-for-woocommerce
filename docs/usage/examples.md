@@ -27,7 +27,7 @@ range here. → Both filters apply together. One WooCommerce-native caveat to
 know: if the export also resolves product **variations** through category
 selection, those variations bypass every export filter (date included) —
 this is WooCommerce's own documented behavior
-(`docs/filtros-exportador-woocommerce.md` §4.2), not something this plugin
+(`docs/spec-references/filtros-exportador-woocommerce.md` §4.2), not something this plugin
 can change. (AC-10)
 
 ## Large catalogs (multiple export batches)

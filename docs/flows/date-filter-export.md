@@ -67,7 +67,7 @@ Store admin (capability `edit_products` + `export`) navigates to
   shows an admin notice (never fatals the site).
 - **Large catalog, multi-batch export:** because the WooCommerce JS resends the
   entire serialized form on every batch call (see
-  `docs/filtros-exportador-woocommerce.md` §2 "El detalle clave"), the date
+  `docs/spec-references/filtros-exportador-woocommerce.md` §2 "El detalle clave"), the date
   filter persists automatically across all batches with no transient/session
   needed. Verified in Phase 5 test point with a catalog large enough to force
   more than one batch.

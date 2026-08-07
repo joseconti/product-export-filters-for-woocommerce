@@ -24,7 +24,7 @@ class Test_EFWC_Clean_Date extends WP_UnitTestCase {
 	}
 
 	public function test_rejects_dotted_format() {
-		// docs/filtros-exportador-woocommerce.md §4.3: parse_date_for_wp_query()'s
+		// docs/spec-references/filtros-exportador-woocommerce.md §4.3: parse_date_for_wp_query()'s
 		// regex does not accept dots.
 		$this->assertSame( '', EFWC_Date_Filter::clean_date( '01.02.2026' ) );
 	}

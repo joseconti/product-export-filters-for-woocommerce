@@ -6,7 +6,7 @@
 ## D-001 — Project type and scope entry point
 - Date / phase: 2026-08-07 / Phase 1
 - Decision: The project is a WordPress plugin / WooCommerce extension that adds filtering options to WooCommerce's native product CSV exporter via hooks, starting with a date filter (created / modified, range with same-day support). The WooCommerce importer is explicitly out of scope — only the exporter is extended.
-- Why: The user already scoped and technically verified this against the WooCommerce 11.0.0 source (see `docs/filtros-exportador-woocommerce.md`), including the exact extension points, traps, and a working reference implementation.
+- Why: The user already scoped and technically verified this against the WooCommerce 11.0.0 source (see `docs/spec-references/filtros-exportador-woocommerce.md`), including the exact extension points, traps, and a working reference implementation.
 - Alternatives rejected: Also touching the importer — rejected because the user stated it is not needed.
 - Supersedes: none
 
@@ -80,9 +80,29 @@
   explicit `start` request).
 - Supersedes: none
 
+## D-019 — `filtros-exportador-woocommerce.md` moved to `docs/spec-references/`
+- Date / phase: 2026-08-07 / post-release-prep, at the user's explicit request
+- Decision: moved (`git mv`, preserving history) from `docs/filtros-exportador-woocommerce.md`
+  to `docs/spec-references/filtros-exportador-woocommerce.md` — the manifest's
+  canonical location for a Phase 2 reference artifact (Table 1: "Only if the
+  spec records any"). Every citation across the project (docs, PHP docblocks,
+  test comments) updated to the new path in the same change.
+- Why: D-008 originally cited the file at its root-`docs/` path rather than
+  duplicating it under `docs/spec-references/`, reasoned as avoiding a
+  two-copies-of-the-same-source-of-truth anti-pattern (`references/anti-patterns.md`
+  #11). The user asked for strict consistency with the manifest's expected
+  location instead — moving (not copying) achieves that without ever creating
+  a duplicate: single file, single source of truth, at the location Table 1
+  actually names.
+- Alternatives rejected: literally copying the file and deleting the
+  original (same end state as a move, but discards git history for no
+  benefit — `git mv` was used instead).
+- Supersedes: D-008's placement reasoning (the artifact's identity, content,
+  and role as a code-to-port reference are unchanged — only its path).
+
 ## D-008 — Reference artifact: port the drafted date-filter class
 - Date / phase: 2026-08-07 / Phase 2, step 1
-- Decision: `docs/filtros-exportador-woocommerce.md` §6 (the `JC_Product_Export_Date_Filter`
+- Decision: `docs/spec-references/filtros-exportador-woocommerce.md` §6 (the `JC_Product_Export_Date_Filter`
   class) is used as a code-to-port reference artifact for Sprint 1, renamed to
   this project's `EFWC_` convention. Registered in `docs/02-functional-spec.md`
   under "Reference artifacts."
@@ -118,7 +138,7 @@
   automatically the moment a Later-roadmap filter needs real client-side logic
   large enough to warrant its own file.
 - Why: matches the actual shape of the code (mirrors
-  `docs/filtros-exportador-woocommerce.md` §6's `enqueue()` method).
+  `docs/spec-references/filtros-exportador-woocommerce.md` §6's `enqueue()` method).
 - Alternatives rejected: none — this is a factual statement about the code's
   shape, not a discretionary choice.
 - Supersedes: none

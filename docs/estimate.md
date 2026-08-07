@@ -9,10 +9,10 @@
 v1 scope from `docs/01-discovery.md`: one filter (date created/modified, from/to
 range, same-day supported) added to WooCommerce's native product CSV exporter via
 hooks, using the already-drafted and WC-11.0.0-verified reference implementation in
-`docs/filtros-exportador-woocommerce.md` §6 as the starting point. No design phase
+`docs/spec-references/filtros-exportador-woocommerce.md` §6 as the starting point. No design phase
 (native admin UI only). Counts: 1 filter, 3 extension points (`woocommerce_product_export_row`,
 `admin_enqueue_scripts`, `woocommerce_product_export_product_query_args`), ~10
-manual test scenarios (`docs/filtros-exportador-woocommerce.md` §9).
+manual test scenarios (`docs/spec-references/filtros-exportador-woocommerce.md` §9).
 
 ### AI working hours (itemized)
 | Segment (AI does) | Hours (low–high) | Basis |
@@ -46,7 +46,7 @@ session; no per-token billing applies. If usage moves to API billing at any poin
 this section will be recomputed with verified per-model token prices at that time.
 
 ### Assumptions & risks
-- Assumes the reference implementation in `docs/filtros-exportador-woocommerce.md`
+- Assumes the reference implementation in `docs/spec-references/filtros-exportador-woocommerce.md`
   §6 needs only prefix/naming adaptation, not a rewrite — verified true as of WC
   11.0.0; a WooCommerce core change before release would require re-verification.
 - Assumes a local wp-env playground can be stood up without licensing/privilege

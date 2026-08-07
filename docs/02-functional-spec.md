@@ -36,7 +36,7 @@
   5. Set `$args[$field]` to that string. This is written **only** for a single
      v1 filter — the moment a second filter is added (Later roadmap), this must
      migrate to a manually-built `date_query` array to avoid WooCommerce's
-     `meta_query`-clobbering behavior (`docs/filtros-exportador-woocommerce.md`
+     `meta_query`-clobbering behavior (`docs/spec-references/filtros-exportador-woocommerce.md`
      §4.1) — tracked as a note in the code map, not built now (YAGNI until the
      second filter actually lands).
 - **Outputs:** the CSV export is limited to products whose `post_date` (created)
@@ -48,7 +48,7 @@
   batch loop still reflects the *filtered* count, because the filter runs before
   the count query, not after (this is why the implementation must never filter
   via `woocommerce_product_export_skip_product_row`, per
-  `docs/filtros-exportador-woocommerce.md` §3 "Aviso").
+  `docs/spec-references/filtros-exportador-woocommerce.md` §3 "Aviso").
 - **Error conditions:**
   - Invalid date string (`checkdate()` fails, or doesn't match the regex) →
     silently dropped, treated as empty for that side of the range.
@@ -57,7 +57,7 @@
     context → `$args` returned unchanged (fail-open to native behavior).
 
 ## Reference artifacts
-- `docs/filtros-exportador-woocommerce.md` §6 — kind: **code to port**. The
+- `docs/spec-references/filtros-exportador-woocommerce.md` §6 — kind: **code to port**. The
   `JC_Product_Export_Date_Filter` class is a working, WC-11.0.0-verified
   reference implementation of both features above. What must be matched
   exactly: the hook set used (`woocommerce_product_export_row`,
@@ -141,7 +141,7 @@ See `docs/03-technical-plan.md`.
 | AC-07 | An invalid date (e.g. 30 February, or a malformed value bypassing the native date picker) does not error or fatal the export; that side of the range is treated as empty. |
 | AC-08 | The filter persists correctly across every AJAX batch of a multi-batch export (large catalog forcing more than one batch) — verified against a seeded catalog large enough to force ≥2 batches. |
 | AC-09 | Products with `future` (scheduled) or `draft` status that fall inside the date range are included, matching the native exporter's own status set. |
-| AC-10 | Combining the date filter with WooCommerce's native category selector behaves per the documented variations caveat (`docs/filtros-exportador-woocommerce.md` §4.2) — the date filter applies correctly to top-level products; the known variations-bypass-the-filter behavior is WooCommerce's own and is asserted as such (not silently "unverified"), not treated as this plugin's defect. |
+| AC-10 | Combining the date filter with WooCommerce's native category selector behaves per the documented variations caveat (`docs/spec-references/filtros-exportador-woocommerce.md` §4.2) — the date filter applies correctly to top-level products; the known variations-bypass-the-filter behavior is WooCommerce's own and is asserted as such (not silently "unverified"), not treated as this plugin's defect. |
 | AC-11 | If the export AJAX request lacks a valid `wc-product-export` nonce, or `$_POST['form']` is absent, the query args are returned unmodified (fails open to native, unfiltered behavior) — verified by directly invoking the filter outside its normal request context. |
 | AC-12 | Every control added to the screen has an accessible name (`<label for>`), is reachable and operable via keyboard alone, and the show/hide of the range row does not trap focus or silently discard an already-entered value when re-hidden and re-shown. |
 | AC-13 | With WooCommerce inactive (or too old to expose the hook the plugin needs), the plugin does nothing harmful — no fatal error, an admin notice is shown instead. |

@@ -23,7 +23,7 @@
 | `docs/threat-model.md` | present | |
 | `docs/flows/` | present | `docs/flows/date-filter-export.md` |
 | `docs/budget.md` | n/a | `Client budget: no` |
-| `docs/spec-references/` | n/a | the Phase 2 reference artifact (D-008) is `docs/filtros-exportador-woocommerce.md`, already committed at its own path; the spec cites it directly rather than duplicating it under `docs/spec-references/` |
+| `docs/spec-references/` | present | `docs/spec-references/filtros-exportador-woocommerce.md` — moved here from its original root-`docs/` path (D-019) so the Phase 2 reference artifact (D-008) lives at the manifest's canonical location, not duplicated |
 | `docs/rubrics/` | present | `docs/rubrics/hooks-and-extensibility.md` (D-011) |
 | `docs/design/references/` | n/a | no UI design needed (D-006) |
 | `docs/design/DESIGN-BRIEF.md` | n/a | no UI design needed (D-006) |

@@ -82,7 +82,7 @@ not determined rather than guessed.
 
 No wordpress.org evidence was found specifically for "never-sold" or "no-SKU"
 export demand — not determined whether that demand exists at meaningful volume;
-those ideas come from the user's own technical notes (`docs/filtros-exportador-woocommerce.md`
+those ideas come from the user's own technical notes (`docs/spec-references/filtros-exportador-woocommerce.md`
 §7), not from external citation.
 
 ## Uncertainty flags
