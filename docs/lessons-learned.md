@@ -141,3 +141,47 @@
   `WP_CONTENT_DIR` copy) — never against the path the assistant is actively
   editing. This applies to every current and future Keel WordPress project
   on this machine, not only this one.
+
+## L-006 — A CI workflow was shipped without ever being run (declared is not delivered)
+- Symptom: the first real GitHub Actions run failed at `composer install`
+  with "Your lock file does not contain a compatible set of packages" —
+  22 packages locked to versions requiring PHP >= 8.1 while the CI job runs
+  PHP 7.4.33.
+- Cause: two layers.
+  **(a) The technical cause:** `composer.lock` was generated on this machine,
+  where PHP is 8.3, so Composer resolved `yoast/phpunit-polyfills ^2.0`'s
+  transitive PHPUnit to 10.x (PHP >= 8.1). The CI job pins PHP 7.4 — the
+  project's declared minimum — so the lock was structurally uninstallable
+  there. A lock file records what was resolvable on the machine that wrote
+  it, not what the project actually supports.
+  **(b) The process cause, which is the real one:** the workflow was written
+  and its YAML was validated, and that was reported as done. Valid YAML says
+  nothing about whether the pipeline runs. This is exactly the SKILL.md
+  "declared is not delivered" trap — a control described in the present
+  tense that had never been executed once.
+- Fix: added `config.platform.php = "7.4.33"` to `composer.json` so Composer
+  resolves the dev dependencies against the project's minimum supported PHP
+  rather than the developer's local PHP, then `composer update` to
+  regenerate the lock (PHPUnit downgraded 10.5.64 → 9.6.35 — which also
+  happens to match the version WordPress's own test suite runs inside the
+  wp-env container, so local and CI now agree). Verified for real in a
+  `php:7.4-cli` Docker container: `composer install`, `php -l` on every
+  file, and `phpcs` all pass on PHP 7.4.33 — the exact version CI reported.
+- Where: Phase 7 / assistant-config package, `.github/workflows/ci.yml` +
+  `composer.json`.
+- What failed first: reporting "YAML valid" as if it were verification. It
+  is a syntax check, nothing more.
+- Check added: `config.platform.php` in `composer.json` is itself the
+  durable mechanical check — Composer now refuses to resolve a dependency
+  set that could not install on the declared minimum PHP, on any machine,
+  forever. Plus the standing rule below.
+- Rule for next time (applies to every Keel project, not only this one):
+  **a CI workflow is not "done" until a real run of it has been observed
+  passing.** Write it, push it, watch the run (`gh run watch`), and only
+  then record it as present. The same rule already holds for the pre-commit
+  gate (which WAS verified by staging a synthetic secret) — CI was the one
+  piece of the assistant-config package that got a weaker standard, and it
+  is the piece that broke. Additionally, for any PHP project declaring a
+  minimum version: pin `config.platform.php` to that minimum at the moment
+  `composer.json` is created, never after the lock has been generated on a
+  newer runtime.
