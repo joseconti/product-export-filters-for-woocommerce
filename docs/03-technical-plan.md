@@ -179,7 +179,7 @@ flowchart LR
 ## Environment requirements
 | Requirement | Required version/state | Severity | Install (macOS / Windows / Linux) |
 |---|---|---|---|
-| Node.js | >= 18 (for `wp-env` and Playwright) | Blocking | macOS: `brew install node`; Windows: `winget install OpenJS.NodeJS.LTS`; Linux: distro package or `nvm` |
+| Node.js | >= 20 (Playwright requires Node 20+; wp-env is happy with less) | Blocking | macOS: `brew install node`; Windows: `winget install OpenJS.NodeJS.LTS`; Linux: distro package or `nvm` |
 | `@wordpress/env` (`wp-env`) | latest, via `npx` (no global install required) | Blocking | `npx @wordpress/env start` — requires a running container runtime |
 | Container runtime for `wp-env` | Docker Engine or Docker Desktop running | Blocking | macOS: Docker Desktop (flag: licensing depends on company size/revenue — Colima is the lighter free alternative) or Colima (`brew install colima docker && colima start`); Windows: Docker Desktop + WSL2; Linux: Docker Engine (no Desktop needed) |
 | Playwright + browsers | latest, `npx playwright install` | Blocking (e2e only) | Same command all platforms; downloads browser binaries (~300MB) |

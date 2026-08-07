@@ -47,13 +47,13 @@ ver_ge() {
 # --- Node.js (blocking: wp-env + Playwright) --------------------------------
 if command -v node >/dev/null 2>&1; then
 	NODE_V=$(node --version | sed 's/^v//')
-	if ver_ge "$NODE_V" "18.0.0"; then
-		add_row "Node.js" "blocking" "OK" "$NODE_V" ">=18" "brew install node (macOS) / winget install OpenJS.NodeJS.LTS (Windows) / distro package or nvm (Linux)" ""
+	if ver_ge "$NODE_V" "20.0.0"; then
+		add_row "Node.js" "blocking" "OK" "$NODE_V" ">=20" "brew install node (macOS) / winget install OpenJS.NodeJS.LTS (Windows) / distro package or nvm (Linux)" ""
 	else
-		add_row "Node.js" "blocking" "TOO OLD" "$NODE_V" ">=18" "brew upgrade node" "brew upgrade node"
+		add_row "Node.js" "blocking" "TOO OLD" "$NODE_V" ">=20" "brew upgrade node" "brew upgrade node"
 	fi
 else
-	add_row "Node.js" "blocking" "MISSING" "-" ">=18" "brew install node (macOS) / winget install OpenJS.NodeJS.LTS (Windows) / distro package or nvm (Linux)" "brew install node"
+	add_row "Node.js" "blocking" "MISSING" "-" ">=20" "brew install node (macOS) / winget install OpenJS.NodeJS.LTS (Windows) / distro package or nvm (Linux)" "brew install node"
 fi
 
 # --- Docker (blocking: wp-env container runtime) ----------------------------
