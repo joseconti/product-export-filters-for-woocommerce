@@ -10,3 +10,4 @@ playwright-report/
 languages/*.mo
 .phpunit.result.cache
 *.log
+.release-check/

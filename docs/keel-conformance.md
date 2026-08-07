@@ -47,19 +47,21 @@
 | Permission allow-lists (committed) | missing | Phase 5 scaffold, if assistant-config accepted — not yet asked |
 | CI workflow | missing | Phase 5 scaffold, if assistant-config accepted and forge has CI — not yet asked |
 | MCP registration | n/a | technical plan does not define dev MCP servers (Phase 2 will confirm) |
-| `docs/architecture.md` | missing | Phase 6 |
-| `docs/api/`, `docs/usage/`, `docs/reference/` | missing | Phase 6 |
-| `docs/security.md` | missing | Phase 6 |
-| `docs/accessibility.md` | missing | Phase 6 |
-| `README.md` | missing | Phase 6 |
-| `guide/` | missing | Phase 6 — not yet asked whether declined |
-| `guide/_theme/` + `guide/brand/` | missing | Phase 6 |
-| `docs/07-release.md` | missing | Phase 7 |
+| `docs/architecture.md` | present | as-built, Mermaid data flow, decisions consolidated |
+| `docs/api/`, `docs/usage/`, `docs/reference/` | present | api/README.md + INDEX.md (empty by design); usage/ (4 files); reference/ (3 files) |
+| `docs/security.md` | present | applied result, consolidated from the threat model |
+| `docs/accessibility.md` | present | applied result + real verification evidence + honest gap (no AT pass yet) |
+| `README.md` | present | |
+| `guide/` | **declined** | D-015 — readme.txt + docs/usage/ give full task coverage for this size of plugin; canonical theme assets not authentically vendorable from this session; reversible |
+| `guide/_theme/` + `guide/brand/` | n/a | condition: only if `guide/` exists (declined, D-015) |
+| `docs/07-release.md` | present | full pre-release verification, self-audit, threat-model re-verification, real package-install test |
 | `<site-docs>/` | n/a | no project website intent for v1 |
 | `docs/.keel/slices/<n>.json` | n/a | no worktree fan-out planned for this small a scope |
 | `docs/issues.md` | missing | created on first forge issue contact |
 | `docs/old/` | n/a | no archiving needed yet |
 | `docs/04-adoption-audit.md` | n/a | this is a new project, not an adoption |
 
-Nothing is `declined` at this point — every `missing` row names the phase that
-creates it, and every `n/a` row quotes its excluding condition.
+One row is `declined` (`guide/`, D-015) — recorded with its decision entry.
+Every other `missing` row (`docs/issues.md`) names the real condition that
+creates it (first forge issue contact), and every `n/a` row quotes its
+excluding condition. Nothing is silently unaccounted for.

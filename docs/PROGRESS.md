@@ -38,29 +38,38 @@
 | 4 Faithful build | n/a — no UI design needed (D-006) | — |
 | 5 Development | done — Sprint 1 closed | export-filters-for-woocommerce.php, includes/class-efwc-date-filter.php, tests/ (17 unit + 5 e2e, all passing), docs/05-test-points.md, docs/playground.md, docs/sprints/sprint-1.md, scripts/keel-verify + keel-doctor + keel-handoff-verify + keel-continue (all passing/verified) |
 | 6 Documentation | done | docs/architecture.md, docs/api/README.md + INDEX.md, docs/reference/, docs/usage/, docs/security.md, docs/accessibility.md, README.md, LICENSE; guide/ declined for v1 (D-015) |
-| 7 Release | pending | — |
+| 7 Release | **candidate ready on `develop` — not tagged/merged/published** | docs/07-release.md, docs/threat-model.md (all controls IN PLACE with real evidence), the real distributable ZIP built and installed-tested live |
 | 8 Website | n/a — no website intent (D-006) | — |
 
 ## Current position
-- Phase: 6 — Documentation. Sprint 1 closed with the full scaffold in place:
-  17/17 PHPUnit unit tests, 5/5 Playwright e2e tests, phpcs clean,
-  `.pot`/`.po`/`.mo` verified, and the complete Keel meta-tooling
-  (`keel-verify`, `keel-doctor`, `keel-handoff-verify` + single-lane lock,
-  `keel-continue`) built and verified live. Four real bugs were found and
-  fixed during verification (L-001–L-004). `Chaining: start` (D-007) can now
-  actually fire on a future clean hand-off — its real Terminal-launch path is
-  implemented but was deliberately not fired this session (D-014).
-- Next action: produce Phase 6 documentation — `docs/architecture.md`,
-  `docs/api/hooks-and-filters.md` (documents the WooCommerce hooks consumed,
-  even though this plugin exposes none of its own yet), `docs/security.md`
-  (consolidated from `docs/threat-model.md`), `docs/accessibility.md`,
-  `README.md`, and ask the user the Phase 6 user-guide questions (languages,
-  ships-in-release) before building `guide/`.
+- Phase: 7 — Release. The v1.0.0 candidate is fully prepared and verified on
+  `develop`: 17/17 unit tests, 5/5 e2e tests, phpcs clean, i18n verified
+  (including a real compiled `.mo` injected into the package — `git archive`
+  alone can't include a gitignored generated file), `keel-verify` and
+  `keel-doctor --check` both green, the WordPress security/anti-patterns
+  self-audit run with real evidence per row, `docs/threat-model.md`'s
+  controls all moved to `IN PLACE`, and — the real test that matters most —
+  the actual packaged ZIP installed fresh into the wp-env playground and
+  smoke-verified working. Full detail in `docs/07-release.md`.
+- **A critical incident occurred and was fully recovered**: verifying the
+  uninstall lifecycle by running `wp plugin uninstall` against the
+  bind-mounted dev plugin directory deleted this repository's real files on
+  disk (wp-env mounts `.` directly — L-005). Nothing was lost (everything
+  was already pushed to `origin/develop`); the working tree was re-cloned
+  and restored, verified identical, and `node_modules`/`vendor` reinstalled.
+  The uninstall lifecycle was then re-verified the safe way (read-only
+  inspection — the plugin creates zero options/tables/transients/events, so
+  there is nothing to clean up).
+- Next action: **entirely the user's call, per the unbreakable version and
+  git-flow rules — Keel prepares and stops here.** Merging `develop` → `main`
+  (this repo has no `main` commit yet — the first release is also the first
+  time `main` gets one), tagging `v1.0.0`, and publishing (wordpress.org
+  and/or a GitHub Release) all require the user's explicit instruction.
 
 ## Open items
-- Unresolved user questions: Phase 6's user-guide questions (languages beyond
-  es_ES/en_US already fixed, ships-in-release yes/no, dev portal yes/no) —
-  to be asked at the start of Phase 6 documentation work.
+- Unresolved user questions: **the release itself** — merge to `main` +
+  tag `v1.0.0` + publish, whenever the user is ready. Nothing else is
+  blocking.
 - Open Design Requests: none — no design phase for this project (D-006)
 - Unverified external steps/assets: none
 - Forge issues in progress: none
@@ -70,5 +79,7 @@
 - Scheduled/remote delivery — deferred as a future premium-tier candidate, not part of the free-tier roadmap; review trigger: "revisit if a premium tier is ever pursued"
 - Real assistive-technology (screen reader) pass — optional, not gating (native WP admin controls only); review trigger: "before wordpress.org submission, offer to the user"
 - `scripts/keel-continue`'s real `start` launch (opening a Terminal window) — implemented, verified on its refuse-to-fire path, but never fired live (D-014); review trigger: "the next sprint close is free to be the first real firing"
+- A dedicated permission-denied Playwright test (low-privilege user cannot see the export screen) — currently relies on WooCommerce core's own gating, verified by code reading rather than a driven test of this plugin specifically; review trigger: "v1.1, alongside the next filter"
+- End-user `guide/` — declined for v1 (D-015), reversible; review trigger: "if the user later wants the full HTML guide once the canonical theme can be vendored"
 
-Last updated: 2026-08-07 — Phase 5 closed (Sprint 1), entering Phase 6 (Documentation); continuing autonomously per recorded Autonomy: automatic
+Last updated: 2026-08-07 — Phase 7 candidate ready on develop; stopped for the user's explicit release decision, per SKILL.md "Git flow" and the version-change policy

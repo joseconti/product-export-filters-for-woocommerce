@@ -207,3 +207,36 @@
   HTML/CSS (the one path the reference explicitly forbids: "never on
   improvised per-project HTML/CSS").
 - Supersedes: none
+
+## D-016 — Packaging: exclude scripts/ + README.md; inject a compiled .mo
+- Date / phase: 2026-08-07 / Phase 7, Release
+- Decision: `.gitattributes` `export-ignore` extended to `/scripts` (Keel
+  meta-tooling — not something an installed WordPress site needs) and
+  `README.md` (the repo-facing doc; `readme.txt` is what wordpress.org
+  actually reads and it still ships). The release packaging procedure
+  compiles `languages/*.mo` with `msgfmt` and injects it into the archive
+  AFTER `git archive` runs, since `.mo` is intentionally gitignored
+  (generated) and `git archive` only includes tracked files — a ZIP built
+  from `git archive` alone would ship with no working translation at all.
+- Why: found by actually inspecting the real `git archive` output before
+  proposing the release as done, rather than assuming the `.gitattributes`
+  boundary was already correct.
+- Alternatives rejected: committing the `.mo` file (rejected — Keel's own
+  code-map convention marks compiled translation files `[G]`/generated,
+  never committed; `scripts/keel-verify` explicitly checks none is tracked).
+- Supersedes: none
+
+## D-017 — v1.0.0 candidate prepared and verified; release itself is the user's act
+- Date / phase: 2026-08-07 / Phase 7, Release close
+- Decision: the v1.0.0 release candidate is fully prepared, verified (full
+  automated suite, self-audit, threat-model re-verification, a real
+  fresh-install test of the actual packaged ZIP), and recorded in
+  `docs/07-release.md`, on `develop`. Per SKILL.md "Git flow" and the
+  version-change policy (both UNBREAKABLE), the assistant does not merge to
+  `main`, does not tag, and does not publish — those require the user's
+  explicit instruction in conversation, which has not been given.
+- Why: no exception exists in Keel's protocol for autonomous mode — "does
+  every merge to develop and every push itself" explicitly stops short of
+  `main`; a release is what real users receive.
+- Alternatives rejected: none — this is not a discretionary choice.
+- Supersedes: none
