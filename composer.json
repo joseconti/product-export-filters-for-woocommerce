@@ -1,0 +1,18 @@
+{
+	"name": "joseconti/export-filters-for-woocommerce",
+	"description": "Dev tooling (coding standards) for Export Filters for WooCommerce. No runtime PHP dependency is shipped by the plugin itself.",
+	"license": "GPL-3.0-or-later",
+	"require-dev": {
+		"wp-coding-standards/wpcs": "^3.0",
+		"woocommerce/woocommerce-sniffs": "^1.0",
+		"yoast/phpunit-polyfills": "^2.0"
+	},
+	"config": {
+		"allow-plugins": {
+			"dealerdirect/phpcodesniffer-composer-installer": true
+		}
+	},
+	"scripts": {
+		"lint": "phpcs --standard=WordPress export-filters-for-woocommerce.php includes/ uninstall.php"
+	}
+}

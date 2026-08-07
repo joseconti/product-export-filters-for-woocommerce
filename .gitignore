@@ -3,3 +3,10 @@
 CLAUDE.local.md
 .keel-update-check
 docs/continuation-prompt.md
+node_modules/
+vendor/
+test-results/
+playwright-report/
+languages/*.mo
+.phpunit.result.cache
+*.log

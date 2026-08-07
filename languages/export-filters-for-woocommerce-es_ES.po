@@ -1,0 +1,63 @@
+# Copyright (C) 2026 José Conti
+# This file is distributed under the GPL-3.0-or-later.
+msgid ""
+msgstr ""
+"Project-Id-Version: Export Filters for WooCommerce 1.0.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/export-filters-for-woocommerce\n"
+"Last-Translator: José Conti <j.conti@joseconti.com>\n"
+"Language-Team: Español <j.conti@joseconti.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-08-07T09:36:29+00:00\n"
+"PO-Revision-Date: 2026-08-07 12:00+0000\n"
+"Language: es_ES\n"
+"X-Domain: export-filters-for-woocommerce\n"
+
+#. Plugin Name of the plugin
+msgid "Export Filters for WooCommerce"
+msgstr "Export Filters for WooCommerce"
+
+#. Plugin URI of the plugin
+msgid "https://github.com/joseconti/product-export-filters-for-woocommerce"
+msgstr "https://github.com/joseconti/product-export-filters-for-woocommerce"
+
+#. Description of the plugin
+msgid "Adds filtering options to WooCommerce's native product exporter, starting with a date filter (created / last modified, with a from/to range)."
+msgstr "Añade opciones de filtrado al exportador nativo de productos de WooCommerce, empezando por un filtro de fecha (creación / última modificación, con un rango de inicio y fin)."
+
+#. Author of the plugin
+msgid "José Conti"
+msgstr "José Conti"
+
+#. Author URI of the plugin
+msgid "https://joseconti.com"
+msgstr "https://joseconti.com"
+
+#: export-filters-for-woocommerce.php:53
+msgid "Export Filters for WooCommerce requires WooCommerce to be active. The plugin is currently doing nothing."
+msgstr "Export Filters for WooCommerce necesita que WooCommerce esté activo. El plugin no está haciendo nada por ahora."
+
+#: includes/class-efwc-date-filter.php:44
+msgid "Filter by date"
+msgstr "Filtrar por fecha"
+
+#: includes/class-efwc-date-filter.php:48
+msgid "All dates"
+msgstr "Todas las fechas"
+
+#: includes/class-efwc-date-filter.php:49
+msgid "Date created"
+msgstr "Fecha de creación"
+
+#: includes/class-efwc-date-filter.php:50
+msgid "Date last modified"
+msgstr "Fecha de última modificación"
+
+#: includes/class-efwc-date-filter.php:56
+msgid "Date range"
+msgstr "Rango de fechas"
+
+#: includes/class-efwc-date-filter.php:63
+msgid "Both ends are included. Use the same date in both fields to export a single day. Leaving one empty keeps that side of the range open."
+msgstr "Ambos extremos se incluyen. Usa la misma fecha en los dos campos para exportar un único día. Si dejas uno vacío, ese lado del rango queda abierto."

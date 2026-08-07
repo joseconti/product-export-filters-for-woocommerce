@@ -1,0 +1,22 @@
+{
+	"name": "export-filters-for-woocommerce",
+	"version": "1.0.0",
+	"private": true,
+	"description": "Dev tooling for Export Filters for WooCommerce (wp-env playground + Playwright e2e). No runtime JS is shipped by the plugin itself.",
+	"license": "GPL-3.0-or-later",
+	"scripts": {
+		"env:start": "wp-env start",
+		"env:stop": "wp-env stop",
+		"env:destroy": "wp-env destroy",
+		"env:clean": "wp-env clean all",
+		"seed": "wp-env run cli wp eval-file wp-content/plugins/export-filters-for-woocommerce/tests/seed/seed-products.php",
+		"test:unit": "wp-env run tests-cli --env-cwd=wp-content/plugins/export-filters-for-woocommerce phpunit",
+		"test:e2e": "playwright test",
+		"test:e2e:headed": "playwright test --headed --debug"
+	},
+	"devDependencies": {
+		"@axe-core/playwright": "^4.9.0",
+		"@playwright/test": "^1.47.0",
+		"@wordpress/env": "^10.0.0"
+	}
+}

@@ -31,18 +31,18 @@
 | `docs/design/design-handoff/` | n/a | no UI design needed (D-006) |
 | `docs/BUILD-SPEC.md` | n/a | no UI design needed (D-006) |
 | `docs/design/design-requests/` | n/a | no UI design needed (D-006) |
-| `.gitignore` + `.gitattributes` | present (partial) | `.gitignore` present with the required entries; `.gitattributes` missing — Phase 5 scaffold |
-| `docs/sprints/` | missing | Phase 5 |
-| `docs/05-test-points.md` | missing | Phase 5 |
-| `docs/api/INDEX.md` | missing | Phase 5 first slice |
+| `.gitignore` + `.gitattributes` | present | both present with the required entries |
+| `docs/sprints/` | present | `docs/sprints/sprint-1.md` (not yet closed) |
+| `docs/05-test-points.md` | present | 13 real, driven test points logged with actual command output |
+| `docs/api/INDEX.md` | present | empty by design — v1 exposes no public surface of its own |
 | `docs/keel-conformance.md` | present | this file |
-| `docs/playground.md` | missing | Phase 5 scaffold |
-| `scripts/keel-verify` | missing | Phase 5 scaffold |
-| `scripts/keel-doctor` | missing | Phase 5 scaffold |
-| `scripts/` build/minify script | n/a | no front-end JS/CSS assets shipped by this plugin (one small inline admin script, no build pipeline) |
-| `scripts/keel-handoff-verify` | missing | Phase 5 scaffold |
-| Single-lane lock | missing | Phase 5 scaffold — required before `start` can actually fire (card: `Chaining: start`) |
-| `scripts/keel-continue` | missing | Phase 5 scaffold |
+| `docs/playground.md` | present | verified live this session |
+| `scripts/keel-verify` | present | passes; covers [E] paths, php -l, phpcs, version touchpoints, .gitignore hygiene, no committed .mo |
+| `scripts/keel-doctor` | missing | next session — compiles from `docs/03-technical-plan.md` §Environment requirements |
+| `scripts/` build/minify script | n/a | no front-end JS/CSS assets shipped by this plugin (one small inline admin script, no build pipeline, D-010) |
+| `scripts/keel-handoff-verify` | missing | next session — needed for `Chaining: start` (D-007) to actually fire |
+| Single-lane lock | missing | next session — required before `start` can actually fire (card: `Chaining: start`) |
+| `scripts/keel-continue` | missing | next session |
 | `.githooks/pre-commit` | missing | Phase 5 scaffold, if assistant-config accepted — not yet asked |
 | Permission allow-lists (committed) | missing | Phase 5 scaffold, if assistant-config accepted — not yet asked |
 | CI workflow | missing | Phase 5 scaffold, if assistant-config accepted and forge has CI — not yet asked |

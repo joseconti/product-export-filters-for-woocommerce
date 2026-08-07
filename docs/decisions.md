@@ -138,3 +138,33 @@
 - Alternatives rejected: declining the rubric pass (would have skipped a cheap,
   relevant check for a hook-based plugin explicitly designed to grow).
 - Supersedes: none
+
+## D-012 — `clean_date()` made public for direct unit testing
+- Date / phase: 2026-08-07 / Phase 5, Sprint 1
+- Decision: `EFWC_Date_Filter::clean_date()` is `public static`, not `private`
+  as it was written in the D-008 reference. Every other method/property keeps
+  the reference's shape.
+- Why: pure-logic unit tests (D-009) need to call it directly; a private
+  method would force testing it only indirectly through `query_args()`,
+  losing the precise per-input assertions in `tests/unit/test-clean-date.php`
+  (including the SQL-injection-shaped-input case from the threat model).
+- Alternatives rejected: keeping it private and testing only through
+  `query_args()` (weaker test granularity); a `@internal`-tagged public method
+  is the standard, low-risk way to make a pure helper testable.
+- Supersedes: none
+
+## D-013 — Test-first policy gap acknowledged for Sprint 1's ported code
+- Date / phase: 2026-08-07 / Phase 5, Sprint 1 close
+- Decision: recorded honestly (per SKILL.md "declared is not delivered") that
+  Sprint 1's unit tests were NOT observed failing before the implementation,
+  contrary to the letter of D-009 (`Test-first policy: pure-logic`) — the
+  already-verified reference class (D-008) was ported and its tests authored
+  in the same pass. `docs/05-test-points.md` documents this explicitly rather
+  than marking the row as compliant. The rule is reaffirmed for every
+  Later-roadmap filter that is NOT a straight port: its unit test must be
+  written and observed failing before its implementation, no exception.
+- Why: this project's process integrity depends on never claiming a check
+  passed that did not actually run as specified.
+- Alternatives rejected: silently marking the row as "Red first: observed"
+  (would misrepresent what actually happened).
+- Supersedes: none
