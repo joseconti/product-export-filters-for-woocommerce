@@ -168,3 +168,22 @@
 - Alternatives rejected: silently marking the row as "Red first: observed"
   (would misrepresent what actually happened).
 - Supersedes: none
+
+## D-014 — `scripts/keel-continue`'s real macOS launch was not fired this session
+- Date / phase: 2026-08-07 / Phase 5, Sprint 1 close
+- Decision: `scripts/keel-continue` was built and verified end-to-end on its
+  refuse-to-fire path (stale/dirty hand-off → prints the prompt, opens
+  nothing) but its actual `osascript`-driven Terminal launch (the `start`
+  action) was never triggered live. It remains untested in the one way that
+  matters most — actually opening a window.
+- Why: firing it for real, right now, would open an unsupervised Claude Code
+  session in a new Terminal window mid-session, with nobody positioned to
+  notice if it launched wrong (per SKILL.md's own residual-risk note on
+  `start`). That is exactly the kind of action this project's session
+  chooses to do deliberately, not as a side effect of building the launcher.
+- Alternatives rejected: firing it anyway "to prove it works" — would have
+  produced exactly the failure mode `references/project-state.md` warns
+  about (a second live session with no one watching for cross-talk).
+- Supersedes: none. Per SKILL.md "An unexercised mechanism is not a blocked
+  one" — this is a fact about the mechanism's history, not a veto; the first
+  real sprint close that actually chains is its own evidence.

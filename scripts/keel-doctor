@@ -1,0 +1,228 @@
+#!/usr/bin/env bash
+# Export Filters for WooCommerce — environment doctor.
+# Compiled from docs/03-technical-plan.md "## Environment requirements".
+# Modes: --check (default, detect only) | --plan (print install commands,
+# run nothing) | --fix (run them, after --yes) | --json (machine-readable).
+#
+# Four states per row: OK / TOO OLD / NOT OPERATIONAL / MISSING.
+# --check never requires privileges and never exits non-zero on an
+# optional/advisory row — only a missing BLOCKING requirement fails the run.
+
+set -u
+cd "$(dirname "$0")/.."
+
+MODE="check"
+JSON=0
+YES=0
+for arg in "$@"; do
+	case "$arg" in
+		--plan) MODE="plan" ;;
+		--fix) MODE="fix" ;;
+		--json) JSON=1 ;;
+		--yes) YES=1 ;;
+		--check) MODE="check" ;;
+	esac
+done
+
+# rows: name|severity|detected_state|detected_version|required|how_to_install|fix_cmd
+ROWS=()
+
+add_row() {
+	ROWS+=("$1|$2|$3|$4|$5|$6|$7")
+}
+
+ver_ge() {
+	# ver_ge A B -> true if A >= B (dotted numeric versions)
+	[ "$1" = "$2" ] && return 0
+	local IFS=.
+	local -a a=($1) b=($2)
+	for i in 0 1 2; do
+		local x=${a[i]:-0} y=${b[i]:-0}
+		if [ "$x" -gt "$y" ] 2>/dev/null; then return 0; fi
+		if [ "$x" -lt "$y" ] 2>/dev/null; then return 1; fi
+	done
+	return 0
+}
+
+# --- Node.js (blocking: wp-env + Playwright) --------------------------------
+if command -v node >/dev/null 2>&1; then
+	NODE_V=$(node --version | sed 's/^v//')
+	if ver_ge "$NODE_V" "18.0.0"; then
+		add_row "Node.js" "blocking" "OK" "$NODE_V" ">=18" "brew install node (macOS) / winget install OpenJS.NodeJS.LTS (Windows) / distro package or nvm (Linux)" ""
+	else
+		add_row "Node.js" "blocking" "TOO OLD" "$NODE_V" ">=18" "brew upgrade node" "brew upgrade node"
+	fi
+else
+	add_row "Node.js" "blocking" "MISSING" "-" ">=18" "brew install node (macOS) / winget install OpenJS.NodeJS.LTS (Windows) / distro package or nvm (Linux)" "brew install node"
+fi
+
+# --- Docker (blocking: wp-env container runtime) ----------------------------
+if command -v docker >/dev/null 2>&1; then
+	if docker info >/dev/null 2>&1; then
+		DV=$(docker --version | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)
+		add_row "Docker (container runtime)" "blocking" "OK" "$DV" "daemon running" "Docker Desktop (licence: free for personal/edu/small business <250 staff & <\$10M revenue) or Colima (brew install colima docker && colima start)" ""
+	else
+		add_row "Docker (container runtime)" "blocking" "NOT OPERATIONAL" "installed, daemon not running" "daemon running" "open -a Docker (Docker Desktop) or 'colima start'" "colima start"
+	fi
+else
+	add_row "Docker (container runtime)" "blocking" "MISSING" "-" "daemon running" "Docker Desktop (licence flag: paid above 250 staff or \$10M revenue) or 'brew install colima docker'" "brew install colima docker"
+fi
+
+# --- PHP CLI (optional outside containers; used for php -l, phpcs) ---------
+if command -v php >/dev/null 2>&1; then
+	PHP_V=$(php -r 'echo PHP_VERSION;' 2>/dev/null)
+	if ver_ge "$PHP_V" "7.4.0"; then
+		add_row "PHP CLI" "optional" "OK" "$PHP_V" ">=7.4" "brew install php" ""
+	else
+		add_row "PHP CLI" "optional" "TOO OLD" "$PHP_V" ">=7.4" "brew upgrade php" "brew upgrade php"
+	fi
+else
+	add_row "PHP CLI" "optional" "MISSING" "-" ">=7.4" "brew install php" "brew install php"
+fi
+
+# --- Composer (optional; installs phpcs + WC sniffs + PHPUnit Polyfills) ---
+# Corroborated per references/test-automation.md "Detection rules that are
+# not obvious": a plain `command -v composer` misses a composer.phar binary
+# or a shell alias defined only in the user's interactive login shell (both
+# real cases on this machine) — check the common phar location too before
+# calling it missing.
+if command -v composer >/dev/null 2>&1; then
+	CV=$(composer --version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)
+	add_row "Composer" "optional" "OK" "${CV:-detected}" "any" "https://getcomposer.org/download/" ""
+elif [ -f /usr/local/bin/composer.phar ] && command -v php >/dev/null 2>&1; then
+	CV=$(php /usr/local/bin/composer.phar --version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)
+	add_row "Composer" "optional" "OK" "${CV:-detected} (composer.phar, no 'composer' alias in this shell)" "any" "https://getcomposer.org/download/" ""
+else
+	add_row "Composer" "optional" "MISSING" "-" "any" "https://getcomposer.org/download/" ""
+fi
+
+# --- phpcs (optional; via composer install) ---------------------------------
+if [ -x vendor/bin/phpcs ]; then
+	add_row "phpcs + WordPress Coding Standards" "optional" "OK" "installed" "wp-coding-standards/wpcs ^3.0" "composer install" ""
+else
+	add_row "phpcs + WordPress Coding Standards" "optional" "MISSING" "-" "wp-coding-standards/wpcs ^3.0" "composer install" "composer install"
+fi
+
+# --- Playwright + browsers (blocking for e2e) -------------------------------
+if [ -d node_modules/@playwright/test ]; then
+	if npx --no-install playwright --version >/dev/null 2>&1; then
+		add_row "Playwright (npm package)" "blocking" "OK" "installed" "any recent" "npm install" ""
+	else
+		add_row "Playwright (npm package)" "blocking" "NOT OPERATIONAL" "present but not runnable" "any recent" "npm install" "npm install"
+	fi
+else
+	add_row "Playwright (npm package)" "blocking" "MISSING" "-" "any recent" "npm install" "npm install"
+fi
+if [ -d "$HOME/Library/Caches/ms-playwright" ] || [ -d "$HOME/.cache/ms-playwright" ]; then
+	add_row "Playwright Chromium browser binary" "blocking" "OK" "installed" "chromium" "npx playwright install chromium" ""
+else
+	add_row "Playwright Chromium browser binary" "blocking" "MISSING" "-" "chromium" "npx playwright install chromium" "npx playwright install chromium"
+fi
+
+# --- gh CLI (optional; forge operations) ------------------------------------
+if command -v gh >/dev/null 2>&1 && gh auth status >/dev/null 2>&1; then
+	add_row "gh CLI (authenticated)" "optional" "OK" "authenticated" "any" "https://cli.github.com" ""
+elif command -v gh >/dev/null 2>&1; then
+	add_row "gh CLI (authenticated)" "optional" "NOT OPERATIONAL" "installed, not authenticated" "any" "gh auth login" "gh auth login"
+else
+	add_row "gh CLI (authenticated)" "optional" "MISSING" "-" "any" "https://cli.github.com" ""
+fi
+
+# --- Permission mode (advisory, per keel-maintenance.md) --------------------
+PERM_MODE="manual"
+if [ -f .claude/settings.local.json ] && grep -q '"defaultMode"[[:space:]]*:[[:space:]]*"auto"' .claude/settings.local.json 2>/dev/null; then
+	PERM_MODE="auto"
+fi
+if [ "$PERM_MODE" = "auto" ]; then
+	add_row "Permission mode" "advisory" "OK" "auto (.claude/settings.local.json)" "auto" "n/a" ""
+else
+	add_row "Permission mode" "advisory" "MISSING" "manual" "auto" "write .claude/settings.local.json with permissions.defaultMode=auto, or start with --permission-mode auto" ""
+fi
+
+# --- claude CLI on PATH (needed for Chaining: start) ------------------------
+# Corroborated: the native installer places the binary at
+# ~/.local/bin/claude, which a restricted script PATH can miss even though
+# it works fine in the user's own login shell (references/keel-maintenance.md
+# "env.PATH" — measured on this exact machine: this script's PATH lacked
+# ~/.local/bin even though `claude` runs this very session).
+CLAUDE_PATH=""
+if command -v claude >/dev/null 2>&1; then
+	CLAUDE_PATH=$(command -v claude)
+elif [ -x "$HOME/.local/bin/claude" ]; then
+	CLAUDE_PATH="$HOME/.local/bin/claude"
+fi
+if [ -n "$CLAUDE_PATH" ]; then
+	add_row "claude CLI on PATH" "advisory" "OK" "$CLAUDE_PATH" "any" "n/a" ""
+else
+	add_row "claude CLI on PATH" "advisory" "MISSING" "-" "any" "curl -fsSL https://claude.ai/install.sh | bash" ""
+fi
+
+# --- Output ------------------------------------------------------------------
+if [ "$JSON" -eq 1 ]; then
+	echo "["
+	first=1
+	for row in "${ROWS[@]}"; do
+		IFS='|' read -r name sev state ver req howto fixcmd <<< "$row"
+		[ "$first" -eq 1 ] && first=0 || echo ","
+		printf '  {"requirement":"%s","severity":"%s","state":"%s","detected":"%s","required":"%s","how_to_install":"%s"}' \
+			"$name" "$sev" "$state" "$ver" "$req" "$howto"
+	done
+	echo
+	echo "]"
+	exit 0
+fi
+
+printf "%-38s %-10s %-12s %-30s %-15s\n" "REQUIREMENT" "SEVERITY" "STATE" "DETECTED" "REQUIRED"
+printf '%.0s-' {1..110}; echo
+BLOCKING_MISSING=0
+for row in "${ROWS[@]}"; do
+	IFS='|' read -r name sev state ver req howto fixcmd <<< "$row"
+	printf "%-38s %-10s %-12s %-30s %-15s\n" "$name" "$sev" "$state" "$ver" "$req"
+	if [ "$sev" = "blocking" ] && { [ "$state" = "MISSING" ] || [ "$state" = "NOT OPERATIONAL" ] || [ "$state" = "TOO OLD" ]; }; then
+		BLOCKING_MISSING=1
+	fi
+done
+echo
+
+if [ "$MODE" = "plan" ]; then
+	echo "Plan (nothing has been run):"
+	for row in "${ROWS[@]}"; do
+		IFS='|' read -r name sev state ver req howto fixcmd <<< "$row"
+		if [ -n "$fixcmd" ]; then
+			echo "  # $name"
+			echo "  $fixcmd"
+		fi
+	done
+	exit 0
+fi
+
+if [ "$MODE" = "fix" ]; then
+	echo "The following commands would run:"
+	for row in "${ROWS[@]}"; do
+		IFS='|' read -r name sev state ver req howto fixcmd <<< "$row"
+		[ -n "$fixcmd" ] && echo "  $fixcmd    # $name"
+	done
+	if [ "$YES" -ne 1 ]; then
+		echo
+		echo "Re-run with --fix --yes to actually run them. Nothing was installed."
+		exit 0
+	fi
+	echo
+	for row in "${ROWS[@]}"; do
+		IFS='|' read -r name sev state ver req howto fixcmd <<< "$row"
+		if [ -n "$fixcmd" ]; then
+			echo "Running: $fixcmd"
+			eval "$fixcmd"
+		fi
+	done
+	exit 0
+fi
+
+# --check
+if [ "$BLOCKING_MISSING" -eq 1 ]; then
+	echo "VERDICT: BLOCKING requirement(s) missing — see table above."
+	exit 1
+else
+	echo "VERDICT: OK (no blocking requirement missing; optional/advisory rows never fail this check)."
+	exit 0
+fi

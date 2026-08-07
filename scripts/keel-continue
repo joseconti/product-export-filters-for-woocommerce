@@ -1,0 +1,140 @@
+#!/usr/bin/env bash
+# Export Filters for WooCommerce — chains the next chat when the hand-off is
+# clean. Per references/project-state.md "scripts/keel-continue". Detects the
+# tool, verifies the hand-off via keel-handoff-verify (never composes its own
+# checks), and fires the recorded VERIFIED action for this project's card
+# (Chaining: start) — or prints the prompt when it cannot.
+#
+# The session's only pre-check is "does this script exist" — everything else
+# (Handover, tool tier, claude-on-PATH, the launch receipt, the circuit
+# breaker) is decided here, freshly, every run.
+
+set -u
+cd "$(dirname "$0")/.."
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+HANDOFF_ABS="$REPO_ROOT/docs/continuation-prompt.md"
+STATE_DIR="${KEEL_STATE_DIR:-$HOME/.keel/state}"
+mkdir -p "$STATE_DIR" 2>/dev/null
+
+print_prompt_and_exit() {
+	echo "$1"
+	echo
+	echo "--- Paste this into a new chat to continue ---"
+	if [ -f "$HANDOFF_ABS" ]; then
+		cat "$HANDOFF_ABS"
+	else
+		echo "(no docs/continuation-prompt.md found — resume from docs/PROGRESS.md instead)"
+	fi
+	exit 0
+}
+
+[ -f "$HANDOFF_ABS" ] || print_prompt_and_exit "No hand-off file found."
+
+# 1. Verify via the courier script — never compose the checks here.
+VERIFY_OUT="$("$REPO_ROOT/scripts/keel-handoff-verify" 2>&1)"
+if ! echo "$VERIFY_OUT" | grep -q "VERDICT: CONTINUE"; then
+	print_prompt_and_exit "Hand-off did not verify clean:
+$VERIFY_OUT"
+fi
+
+HDR_GEN=$(sed -n 's/^Generated: //p' "$HANDOFF_ABS" | head -1)
+HDR_COMMIT=$(sed -n 's/^Commit: //p' "$HANDOFF_ABS" | head -1)
+RECEIPT_ID="${HDR_COMMIT}-$(printf '%s' "$HDR_GEN" | shasum -a 256 | cut -c1-8)"
+RECEIPT_DIR="$STATE_DIR/receipt-$RECEIPT_ID"
+
+# 2. Circuit breaker: >3 receipts for this repo within the last hour.
+NOW=$(date -u "+%s")
+RECENT=0
+for f in "$STATE_DIR"/receipt-*; do
+	[ -e "$f" ] || continue
+	RTIME=$(sed -n 's/^claimed-at: //p' "$f" 2>/dev/null)
+	[ -n "$RTIME" ] && [ $(( NOW - RTIME )) -lt 3600 ] && RECENT=$(( RECENT + 1 ))
+done
+if [ "$RECENT" -gt 3 ]; then
+	"$REPO_ROOT/scripts/keel-handoff-verify" --release >/dev/null 2>&1
+	print_prompt_and_exit "Circuit breaker: more than 3 launch receipts for this repository in the last hour — chaining disabled for this session."
+fi
+
+# 3. Claim the launch receipt ATOMICALLY (mkdir).
+if ! mkdir "$RECEIPT_DIR" 2>/dev/null; then
+	"$REPO_ROOT/scripts/keel-handoff-verify" --release >/dev/null 2>&1
+	print_prompt_and_exit "This hand-off was already launched (receipt exists) — not firing again."
+fi
+echo "claimed-at: $NOW" > "$RECEIPT_DIR/info"
+echo "launcher-pid: $$" >> "$RECEIPT_DIR/info"
+
+# 4. Detect the tool. Only claude-vscode is matched by name; every other
+#    CLAUDECODE=1 entrypoint is the CLI (per the registry rule — never
+#    enumerate the CLI's values).
+if [ "${CLAUDECODE:-}" = "1" ] && [ "${CLAUDE_CODE_ENTRYPOINT:-}" = "claude-vscode" ]; then
+	TOOL_TIER="prefill"
+elif [ "${CLAUDECODE:-}" = "1" ]; then
+	TOOL_TIER="start"
+else
+	TOOL_TIER="none"
+fi
+
+if [ "$TOOL_TIER" = "none" ]; then
+	"$REPO_ROOT/scripts/keel-handoff-verify" --release >/dev/null 2>&1
+	print_prompt_and_exit "No VERIFIED tool action recognized for this environment (no CLAUDECODE marker) — this is a success, not a failure."
+fi
+
+CARD_CHAINING="start" # docs/PROGRESS.md project card: Chaining: start (D-007)
+
+if [ "$TOOL_TIER" = "prefill" ]; then
+	# VS Code extension: pre-fills, never submits. card allows start >= prefill.
+	INSTR="Lee $HANDOFF_ABS y continua."
+	URI="vscode://anthropic.claude-code/open?prompt=$(python3 -c "import urllib.parse,sys; print(urllib.parse.quote(sys.argv[1]))" "$INSTR" 2>/dev/null || printf '%s' "$INSTR")"
+	"$REPO_ROOT/scripts/keel-handoff-verify" --release >/dev/null 2>&1
+	if command -v open >/dev/null 2>&1; then
+		open "$URI" && { echo "Opened a pre-filled VS Code chat. Press Enter there to continue."; exit 0; }
+	fi
+	print_prompt_and_exit "Could not open the VS Code URI handler."
+fi
+
+# TOOL_TIER = start. Only verified on macOS (osascript + Terminal.app).
+if [ "$CARD_CHAINING" != "start" ]; then
+	"$REPO_ROOT/scripts/keel-handoff-verify" --release >/dev/null 2>&1
+	print_prompt_and_exit "Card says Chaining: $CARD_CHAINING, which does not allow 'start' — downgrading would need a prefill action, which the CLI row does not have."
+fi
+
+if [ "$(uname)" != "Darwin" ]; then
+	"$REPO_ROOT/scripts/keel-handoff-verify" --release >/dev/null 2>&1
+	print_prompt_and_exit "'start' is verified on macOS only; this is $(uname)."
+fi
+
+# 5a. Re-check claude on PATH live — never trust an earlier recorded answer.
+CLAUDE_BIN=""
+if command -v claude >/dev/null 2>&1; then
+	CLAUDE_BIN="$(command -v claude)"
+elif [ -x "$HOME/.local/bin/claude" ]; then
+	CLAUDE_BIN="$HOME/.local/bin/claude"
+fi
+if [ -z "$CLAUDE_BIN" ]; then
+	"$REPO_ROOT/scripts/keel-handoff-verify" --release >/dev/null 2>&1
+	print_prompt_and_exit "'claude' is not on PATH right now (checked live, not from an earlier record)."
+fi
+
+# 6a. Write a real, executable launch script file — never an interpolated
+#     inline string handed to `do script`.
+LAUNCH_SCRIPT=$(mktemp "$TMPDIR/keel-continue-launch.XXXXXX")
+{
+	echo "#!/usr/bin/env bash"
+	echo "cd '$REPO_ROOT'"
+	echo "'$CLAUDE_BIN' 'Lee $HANDOFF_ABS y continua.'"
+} > "$LAUNCH_SCRIPT"
+chmod +x "$LAUNCH_SCRIPT"
+
+# 7. Release the lane IMMEDIATELY BEFORE firing.
+"$REPO_ROOT/scripts/keel-handoff-verify" --release >/dev/null 2>&1
+
+osascript -e "tell application \"Terminal\" to do script \"$LAUNCH_SCRIPT\"" >/dev/null 2>&1
+OSA_EXIT=$?
+
+if [ "$OSA_EXIT" -eq 0 ]; then
+	echo "Fired: a new Terminal window is launching Claude Code with the hand-off instruction."
+	exit 0
+else
+	print_prompt_and_exit "osascript did not return success (exit $OSA_EXIT) — could not confirm a window opened."
+fi

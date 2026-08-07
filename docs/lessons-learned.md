@@ -72,3 +72,28 @@
   a small amount of markup to is scoped to that markup, not the whole screen
   — a wider scope makes the test responsible for someone else's code and
   produces false "this plugin is broken" alarms.
+
+## L-004 — a restricted script `PATH` misses tools this session's own shell can see
+- Symptom: `scripts/keel-doctor`'s first draft reported both Composer and the
+  `claude` CLI as `MISSING`, on the very machine actively running this Claude
+  Code session (so `claude` obviously exists and runs).
+- Cause: exactly the trap documented in Keel's own
+  `references/keel-maintenance.md` ("env.PATH") — a script's `PATH` can lack
+  `~/.local/bin` (where the native `claude` installer places its binary) even
+  though the user's interactive login shell has it; separately, Composer was
+  installed as `composer.phar` behind a shell alias (`alias composer='php
+  /usr/local/bin/composer.phar'`), which a non-interactive script never sees
+  since aliases aren't expanded outside an interactive shell.
+- Fix: `scripts/keel-doctor` corroborates a negative `command -v` result
+  against the known install locations (`~/.local/bin/claude`,
+  `/usr/local/bin/composer.phar`) before reporting `MISSING`, per
+  `references/test-automation.md` "Detection rules that are not obvious".
+- Where: Phase 5 scaffold, `scripts/keel-doctor`.
+- What failed first: the naive `command -v claude` / `command -v composer`
+  checks — passed code review by inspection but failed the moment the script
+  actually ran on this real machine.
+- Check added: the corroboration itself, now permanent in the script.
+- Rule for next time: never trust a single `command -v` result for a tool
+  that has a documented alternate install location or is commonly aliased —
+  check the known alternates before writing a row as `MISSING`, on this
+  project and any other Keel project's doctor script.

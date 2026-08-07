@@ -38,11 +38,11 @@
 | `docs/keel-conformance.md` | present | this file |
 | `docs/playground.md` | present | verified live this session |
 | `scripts/keel-verify` | present | passes; covers [E] paths, php -l, phpcs, version touchpoints, .gitignore hygiene, no committed .mo |
-| `scripts/keel-doctor` | missing | next session — compiles from `docs/03-technical-plan.md` §Environment requirements |
+| `scripts/keel-doctor` | present | `--check`/`--plan`/`--fix`/`--json` all verified working; found and fixed two real corroboration gaps (composer.phar, ~/.local/bin/claude) live on this machine |
 | `scripts/` build/minify script | n/a | no front-end JS/CSS assets shipped by this plugin (one small inline admin script, no build pipeline, D-010) |
-| `scripts/keel-handoff-verify` | missing | next session — needed for `Chaining: start` (D-007) to actually fire |
-| Single-lane lock | missing | next session — required before `start` can actually fire (card: `Chaining: start`) |
-| `scripts/keel-continue` | missing | next session |
+| `scripts/keel-handoff-verify` | present | the 6 courier checks + single-lane lock take/release; verified live — correctly refused a stale/dirty hand-off |
+| Single-lane lock | present | implemented inside `scripts/keel-handoff-verify` (lock file under `~/.keel/state/`, keyed by the real working-tree path) |
+| `scripts/keel-continue` | present | tool detection, launch receipt, circuit breaker, script-file launch (never an interpolated string) all implemented; verified the refuse-to-fire path live (stale hand-off → printed prompt, no window opened); the actual macOS Terminal-launch path is implemented per spec but not fired in this session (firing it would open a real unsupervised chat window without the user watching it happen) |
 | `.githooks/pre-commit` | missing | Phase 5 scaffold, if assistant-config accepted — not yet asked |
 | Permission allow-lists (committed) | missing | Phase 5 scaffold, if assistant-config accepted — not yet asked |
 | CI workflow | missing | Phase 5 scaffold, if assistant-config accepted and forge has CI — not yet asked |

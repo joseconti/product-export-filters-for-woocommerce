@@ -6,11 +6,10 @@
 - Acceptance: AC-01 through AC-13 from `docs/02-functional-spec.md` all
   covered by driven tests and passing; `scripts/keel-verify` passes;
   `.pot`/`.po`/`.mo` generate correctly.
-- Status: **in progress** — implementation, unit tests, e2e tests, phpcs, and
-  i18n are all done and verified live (see `docs/05-test-points.md`); the
-  scaffold's remaining meta-tooling (`keel-doctor`, `keel-handoff-verify`,
-  `keel-continue`, single-lane lock) is not yet built, so the sprint is not
-  formally closed.
+- Status: **closed**. Implementation, unit tests, e2e tests, phpcs, i18n, and
+  the full scaffold meta-tooling (`keel-doctor`, `keel-handoff-verify`,
+  `keel-continue`, single-lane lock) are all built and verified live (see
+  `docs/05-test-points.md`).
 - Slices:
   | Slice | Status | Test point result | Notes |
   |---|---|---|---|
@@ -20,6 +19,9 @@
   | Playwright e2e suite + axe accessibility | done | 5/5 pass headless, trace+video recorded | L-003 fixed during verification (axe scoping) |
   | i18n (`.pot`/`.po`/es_ES `.mo`) | done | `wp i18n make-pot` + `msgfmt` both verified | 11 msgids, all translated |
   | `scripts/keel-verify` | done | passes | Covers [E] paths, php -l, phpcs, version touchpoints, .gitignore hygiene |
-  | `scripts/keel-doctor` / `keel-handoff-verify` / `keel-continue` / single-lane lock | **not started** | — | Needed before `Chaining: start` (D-007) can actually fire |
-- Close-out: not yet closed — see "Current position" in `docs/PROGRESS.md`
-  for what remains before this sprint formally closes.
+  | `scripts/keel-doctor` | done | `--check`/`--plan`/`--fix`/`--json` verified; found 2 real corroboration gaps on this machine (composer.phar, ~/.local/bin/claude) | L-004 |
+  | `scripts/keel-handoff-verify` + single-lane lock | done | verified live — correctly refused a stale/dirty hand-off, correctly released an empty lane | |
+  | `scripts/keel-continue` | done | verified the refuse-to-fire path live; the actual `start` launch (opening a real Terminal window) was not fired this session — see `docs/decisions.md` D-014 | |
+- Close-out: all slices done. `Chaining: start` (D-007) can now actually
+  fire on a future clean, committed hand-off. Ready for Phase 6
+  (Documentation).

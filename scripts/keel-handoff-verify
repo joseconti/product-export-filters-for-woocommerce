@@ -1,0 +1,179 @@
+#!/usr/bin/env bash
+# Export Filters for WooCommerce — hand-off courier checks + single-lane lock.
+# Per references/project-state.md "The continuation file". A session NEVER
+# composes these checks itself — it runs this script and reads VERDICT.
+#
+# Usage:
+#   scripts/keel-handoff-verify              # run the 6 courier checks, take the lane if Chaining: start
+#   scripts/keel-handoff-verify --release     # release the lane if this session/PID holds it
+
+set -u
+cd "$(dirname "$0")/.."
+
+HANDOFF="docs/continuation-prompt.md"
+STATE_DIR="${KEEL_STATE_DIR:-$HOME/.keel/state}"
+mkdir -p "$STATE_DIR" 2>/dev/null
+
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)"
+if [ -z "$REPO_ROOT" ]; then
+	echo "FAIL: not inside a git repository"
+	echo "VERDICT: STOP"
+	exit 1
+fi
+
+# Lock key: hash of the real (symlink-resolved) working-tree path — never the
+# root-commit hash (wrong/unstable under a shallow clone), per
+# references/project-state.md "The single-lane lock".
+REAL_ROOT="$(cd "$REPO_ROOT" && pwd -P)"
+LOCK_KEY=$(printf '%s' "$REAL_ROOT" | shasum -a 256 | cut -c1-16)
+LOCK_FILE="$STATE_DIR/lock-$LOCK_KEY"
+
+release_lane() {
+	if [ -f "$LOCK_FILE" ]; then
+		HOLDER_PID=$(sed -n '1p' "$LOCK_FILE")
+		if [ "$HOLDER_PID" = "$$" ] || [ "$HOLDER_PID" = "${KEEL_SESSION_PID:-__none__}" ]; then
+			rm -f "$LOCK_FILE"
+			echo "Lane released (was held by PID $HOLDER_PID)."
+		else
+			echo "Nothing to release — lane is held by PID $HOLDER_PID, not this session."
+		fi
+	else
+		echo "Nothing to release — no lane held for this repository."
+	fi
+}
+
+if [ "${1:-}" = "--release" ]; then
+	release_lane
+	exit 0
+fi
+
+FAIL=0
+say() { echo "$1"; }
+
+# --- 1. The hand-off file must exist ----------------------------------------
+if [ ! -f "$HANDOFF" ]; then
+	say "INFO: no $HANDOFF present — ordinary (gitignored, absent on a fresh clone). Resume from docs/PROGRESS.md."
+	echo "VERDICT: CONTINUE (no hand-off to verify; use committed state)"
+	exit 0
+fi
+
+# --- Parse the header --------------------------------------------------------
+HDR_REPO=$(sed -n 's/^Repo: //p' "$HANDOFF" | head -1)
+HDR_GEN=$(sed -n 's/^Generated: //p' "$HANDOFF" | head -1)
+HDR_COMMIT=$(sed -n 's/^Commit: //p' "$HANDOFF" | head -1)
+HDR_TREE=$(sed -n 's/^Tree: //p' "$HANDOFF" | head -1)
+HDR_HANDOVER=$(sed -n 's/^Handover: //p' "$HANDOFF" | head -1)
+
+if [ -z "$HDR_REPO" ] || [ -z "$HDR_COMMIT" ] || [ -z "$HDR_HANDOVER" ]; then
+	say "FAIL: malformed or unreadable header — treated as a missing file"
+	echo "VERDICT: STOP"
+	exit 1
+fi
+
+# --- 2. Containment: the hand-off's real path is inside THIS repo's toplevel
+REAL_HANDOFF="$(cd "$(dirname "$HANDOFF")" && pwd -P)/$(basename "$HANDOFF")"
+case "$REAL_HANDOFF" in
+	"$REAL_ROOT"/*) say "PASS: containment — hand-off is inside this repository's working tree" ;;
+	*)
+		say "FAIL: containment — $REAL_HANDOFF is NOT inside $REAL_ROOT"
+		echo "VERDICT: STOP"
+		exit 1
+		;;
+esac
+
+# --- 3. Repo identity (root-commit hash) ------------------------------------
+if git rev-parse --is-shallow-repository 2>/dev/null | grep -q true; then
+	say "INFO: shallow clone — Repo identity unverifiable; containment carries the weight"
+else
+	ACTUAL_ROOT_COMMIT=$(git rev-list --max-parents=0 HEAD 2>/dev/null | sort | head -1 | cut -c1-7)
+	if [ "$HDR_REPO" = "$ACTUAL_ROOT_COMMIT" ] || [ "$HDR_REPO" = "unavailable (shallow)" ]; then
+		say "PASS: Repo — $HDR_REPO matches this repository's root commit"
+	else
+		say "FAIL: Repo — hand-off says $HDR_REPO, this repository's root commit is $ACTUAL_ROOT_COMMIT"
+		FAIL=1
+	fi
+fi
+
+# --- 4. Commit ----------------------------------------------------------------
+ACTUAL_HEAD=$(git rev-parse --short HEAD 2>/dev/null)
+if [ "$HDR_COMMIT" = "$ACTUAL_HEAD" ]; then
+	say "PASS: Commit — $HDR_COMMIT matches HEAD"
+elif git merge-base --is-ancestor "$HDR_COMMIT" HEAD 2>/dev/null; then
+	BEHIND=$(git rev-list "$HDR_COMMIT"..HEAD --count 2>/dev/null)
+	say "FAIL: Commit — hand-off's $HDR_COMMIT is $BEHIND commit(s) behind current HEAD $ACTUAL_HEAD"
+	FAIL=1
+else
+	say "FAIL: Commit — hand-off's $HDR_COMMIT is not an ancestor of current HEAD $ACTUAL_HEAD"
+	FAIL=1
+fi
+
+# --- 5. Generated timestamp, as epoch seconds --------------------------------
+if [ -n "$HDR_GEN" ]; then
+	GEN_EPOCH=$(date -j -f "%Y-%m-%dT%H:%M:%SZ" "$HDR_GEN" "+%s" 2>/dev/null || date -d "$HDR_GEN" "+%s" 2>/dev/null)
+	NOW_EPOCH=$(date -u "+%s")
+	if [ -n "$GEN_EPOCH" ]; then
+		AGE=$(( NOW_EPOCH - GEN_EPOCH ))
+		say "PASS: Generated — $HDR_GEN (${AGE}s ago)"
+	else
+		say "INFO: Generated — could not parse '$HDR_GEN' as a timestamp on this platform; not blocking"
+	fi
+fi
+
+# --- 6. Tree cleanliness -----------------------------------------------------
+ACTUAL_DIRTY=$(git status --porcelain 2>/dev/null | wc -l | tr -d ' ')
+if [ "$ACTUAL_DIRTY" -eq 0 ]; then
+	ACTUAL_TREE="clean"
+else
+	ACTUAL_TREE="dirty ($ACTUAL_DIRTY files)"
+fi
+if [ "$HDR_TREE" = "$ACTUAL_TREE" ] || { [ "$HDR_TREE" = "clean" ] && [ "$ACTUAL_DIRTY" -eq 0 ]; }; then
+	say "PASS: Tree — $ACTUAL_TREE, matches the hand-off"
+else
+	say "FAIL: Tree — hand-off says '$HDR_TREE', repository is actually '$ACTUAL_TREE'"
+	FAIL=1
+fi
+
+# --- Handover state -----------------------------------------------------------
+if [ "$HDR_HANDOVER" = "clean" ]; then
+	say "PASS: Handover — clean"
+else
+	say "FAIL: Handover — $HDR_HANDOVER"
+	FAIL=1
+fi
+
+echo
+if [ "$FAIL" -eq 1 ]; then
+	echo "VERDICT: STOP"
+	exit 1
+fi
+
+# --- Single-lane lock: take it (only relevant when Chaining: start fires
+#     scripts/keel-continue right after this) --------------------------------
+if [ -f "$LOCK_FILE" ]; then
+	HOLDER_PID=$(sed -n '1p' "$LOCK_FILE")
+	HOLDER_START=$(sed -n '2p' "$LOCK_FILE")
+	if kill -0 "$HOLDER_PID" 2>/dev/null; then
+		LAUNCHER_PID=$(sed -n 's/^launcher-pid: //p' "$STATE_DIR/receipt-${HDR_COMMIT}-$(printf '%s' "$HDR_GEN" | shasum -a 256 | cut -c1-8)" 2>/dev/null)
+		if [ -n "$LAUNCHER_PID" ] && [ "$HOLDER_PID" = "$LAUNCHER_PID" ]; then
+			say "Lane baton: holder PID $HOLDER_PID is this hand-off's own launcher (already closed out) — taking the lane."
+			echo "$$" > "$LOCK_FILE"
+			date -u "+%s" >> "$LOCK_FILE"
+		else
+			say "Lane busy: PID $HOLDER_PID is live and is not this hand-off's launcher."
+			echo "To clear it: close that session's window, or run 'scripts/keel-handoff-verify --release' in it."
+			echo "VERDICT: STOP"
+			exit 1
+		fi
+	else
+		say "Recovered an orphaned lock from PID $HOLDER_PID (process no longer exists)."
+		echo "$$" > "$LOCK_FILE"
+		date -u "+%s" >> "$LOCK_FILE"
+	fi
+else
+	echo "$$" > "$LOCK_FILE"
+	date -u "+%s" >> "$LOCK_FILE"
+	say "Lane taken (PID $$)."
+fi
+
+echo "VERDICT: CONTINUE"
+exit 0
