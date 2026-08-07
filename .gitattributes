@@ -16,5 +16,7 @@ package.json export-ignore
 package-lock.json export-ignore
 CLAUDE.md export-ignore
 AGENTS.md export-ignore
+/scripts export-ignore
+README.md export-ignore
 *.md text eol=lf
 *.php text eol=lf

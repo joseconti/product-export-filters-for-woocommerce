@@ -97,3 +97,47 @@
   that has a documented alternate install location or is commonly aliased —
   check the known alternates before writing a row as `MISSING`, on this
   project and any other Keel project's doctor script.
+
+## L-005 — `wp plugin uninstall` deleted the real repo files, not just the container's copy (CRITICAL)
+- Symptom: while verifying the Phase 7 release-gate's install→uninstall→reinstall
+  lifecycle, running `npx wp-env run cli wp plugin uninstall
+  product-export-filters-for-woocommerce` inside the wp-env `cli` container
+  emptied the entire working directory on the host machine — `git status`
+  afterward reported "not a git repository" because `.git` itself was gone.
+- Cause: `.wp-env.json` mounts the plugin as `"."` — a **bind mount** from
+  this repository's real path into the container's
+  `wp-content/plugins/product-export-filters-for-woocommerce/`, not a copy.
+  `wp plugin uninstall` deletes the plugin's directory as part of its normal,
+  documented behavior — inside the container that IS the host repository, so
+  the deletion happened on disk, for real, immediately.
+- Fix: recovered in full — nothing was lost because every change through
+  that point was already committed and pushed to `origin/develop` (a remote
+  git server is unaffected by a local filesystem deletion). Re-cloned into a
+  temp path, verified the clone matched origin exactly, `rsync`'d it back
+  into place, reinstalled the gitignored `node_modules`/`vendor` dirs.
+- Where: Phase 7, pre-release real-environment lifecycle verification.
+- What failed first: treating `wp plugin uninstall` as a container-scoped,
+  reversible operation because it *looks* like ordinary WP-CLI plugin
+  management — the bind-mount fact was known (it's in `.wp-env.json`,
+  written by this same project) but not connected to the risk of a
+  file-deleting command before running it.
+- Check added: none possible mechanically inside wp-env itself; the rule
+  below is the check, and it is now written down so it is never
+  re-discovered by running the command again.
+- Rule for next time (UNBREAKABLE for any Keel WordPress-plugin project
+  using wp-env with a bind-mounted plugin, i.e. `"."` in `.wp-env.json`'s
+  `plugins`/`themes` list): **never run a WP-CLI command whose documented
+  behavior deletes files** (`wp plugin uninstall`, `wp plugin delete`, `wp
+  theme delete`, and equivalents) **against a bind-mounted path** — it
+  deletes the real files on the host, not a container-local copy. To verify
+  an uninstall lifecycle safely instead: (a) analytically confirm what the
+  plugin would clean up by inspecting `uninstall.php` and searching for any
+  options/transients/tables/scheduled events the plugin actually creates
+  (`wp option list --search=<prefix>*`, etc. — read-only, safe), or (b) if a
+  literal `wp plugin uninstall` run is genuinely needed, do it against a
+  **copy** installed into a disposable environment that is NOT bind-mounted
+  from the working repository (e.g. install the built distributable ZIP into
+  a throwaway wp-env instance with no source mount, or a temporary
+  `WP_CONTENT_DIR` copy) — never against the path the assistant is actively
+  editing. This applies to every current and future Keel WordPress project
+  on this machine, not only this one.
